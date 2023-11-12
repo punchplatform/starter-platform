@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: compact-ingestion-http-service
+  labels:
+    tenant: default
+    channel: ingestion
+spec:
+  type: LoadBalancer
+  ports:
+    - name: httpinput
+      protocol: TCP
+      port: 8090
+      targetPort: 8080
+  selector:
+    app: compact-ingestion-http

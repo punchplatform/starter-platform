@@ -1,0 +1,39 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: compact-ingestion-http
+  labels:
+    tenant: default
+    channel: ingestion
+    app: compact-ingestion-http
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9090'
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/punchline-java:8.1-dev
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: JDK_JAVA_OPTIONS
+          value: "-Xms100m -Xmx450m -Dpunchplatform.every_period_secs=3"
+  dag:
+    - id: input
+      kind: source
+      type: http_source
+      settings:
+        debug: false
+        url: "http://0.0.0.0:8080"
+      out:
+        - id: logs
+          table: logs
+    
+    - id: logs
+      kind: sink
+      type: kafka
+      settings:
+        show: true
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topic: logs-input
+    

@@ -1,0 +1,4 @@
+# Use
+#   - ARTIFACT_SERVER_URL="http://artifacts-server.punch:8080" to use Kooker
+#   - ARTIFACT_SERVER_URL="http://localhost:4245" for local development
+ARTIFACT_SERVER_URL="http://artifacts-server.punch:8080"
