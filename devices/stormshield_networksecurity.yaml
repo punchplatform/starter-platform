@@ -1,0 +1,260 @@
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: stormshield_networksecurity
+  annotations:
+    prometheus.io/scrape: 'false'
+    punchplatform.thalesdigital.io/platform: platform
+    devices.punchplatform.com/id: zone-europe-west1-stormshield-networksecurity-s1
+    devices.punchplatform.com/version: "1.1"
+    devices.punchplatform.com/inactivityTimeout: "30"
+    devices.punchplatform.com/refreshIntervalSeconds: "10"
+    devices.punchplatform.com/vendor: "iot.punchplatform.com"
+    devices.punchplatform.com/adminUrl:  "http://artifacts-server.punch:8080/v1/devices/device"
+spec:
+  dag:
+    - id: data
+      type: generator_source
+      kind: source
+      settings:
+        fields:
+          - name : syslog_timestamp
+            type: timestamp
+            format: MMM dd HH:mm:ss
+          - name : priority
+            type: counter
+            min: 34
+            max: 35
+          - name : rule
+            type: random
+            min: 1
+            max: 30
+          - name : duration
+            type: random
+            min: 1
+            max: 100
+          - name : sent
+            type: random
+            min: 1000
+            max: 30000
+          - name : rcvd
+            type: random
+            min: 1000
+            max: 30000
+          - name : srcname
+            type: list
+            content:
+              - Disk
+              - File
+              - Keystore
+              - Administration
+              - Team
+          - name : server
+            type: list
+            content:
+              - server1
+              - server2
+              - server3
+              - server4
+              - server5
+          - name : domain
+            type: list
+            content:
+              - sail.com
+              - punch.com
+              - board.com
+              - surf.com
+          - name : PROJ_ID
+            type: list
+            content:
+              - PROJ1
+              - PROJ1
+              - PROJ1
+              - PROJ1
+              - PROJ1
+              - PROJ2
+              - PROJ2
+              - PROJ2
+              - PROJ3
+              - PROJ3
+          - name : FWL_POS
+            type: list
+            content:
+              - FRONT
+              - FRONT
+              - FRONT
+              - MIDDLE
+              - BACK
+              - FRONT
+              - MIDDLE
+              - BACK
+              - FRONT
+              - BACK
+          - name : syslog_host_counter
+            type: counter
+            min: 0
+            max: 256
+          - name : src_us
+            type: ipv4
+            format: "128.[0-255].[0-255].[0-255]"
+          - name : src_pirate
+            type: ipv4
+            format: "128.66.66.66"
+          - name : dst_ip
+            type: list
+            content:
+              - 92.149.90.114
+              - 92.149.90.115
+              - 92.149.90.116
+          - name : owner
+            type: list
+            content:
+              - frank
+              - bob
+              - alice
+              - ted
+              - dimi
+              - ced
+              - phil
+              - julien
+              - jerome
+              - hacker
+          - name : uri
+            type: list
+            content:
+              - GET /style2.css HTTP/1.1
+              - GET /ref/index.html HTTP/1.1
+              - GET /yet/another.html.css HTTP/1.1
+          - name : url
+            type: list
+            content:
+              - https://www.example.com/start.html
+              - https://www.semicomplete.com/blog/geekery/bypassing-captive-portals.html
+          - name : useragent
+            type: list
+            content:
+              - Mozilla/5.0 (iPad; U; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8L1 Safari/6533.18.5
+              - Mozilla/5.0 (Windows; U; Windows NT 6.0; sv-SE) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1
+              - Mozilla/5.0 (Linux; Android 5.1.1; Nexus 5 Build/LMY48B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/43.0.2357.65 Mobile Safari/537.36
+              - Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko
+              - Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/4.0; GTB7.4; InfoPath.3; SV1; .NET CLR 3.1.76908; WOW64; en-US)
+              - Windows-RSS-Platform/2.0 (IE 11.0; Windows NT 6.1)
+          - name : dst_port
+            type: list
+            content:
+              - '80'
+              - '80'
+              - '80'
+              - '80'
+              - '80'
+              - '443'
+              - '443'
+              - '443'
+              - '636'
+              - '636'
+          - name : dst_port_pirate
+            type: random
+            min: 1024
+            max: 32769
+          - name : src_port
+            type: list
+            content:
+              - '3280'
+              - '3280'
+              - '3280'
+              - '3280'
+              - '3280'
+              - '3443'
+              - '3443'
+              - '3443'
+              - '3636'
+              - '3636'
+          - name : action_block
+            type: list
+            content:
+              - pass
+              - block
+              - pass
+              - pass
+              - block
+              - pass
+              - pass
+              - block
+              - pass
+              - pass
+              - pass
+              - block
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - block
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - block
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - block
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+              - pass
+          - name : bytes
+            type: random
+            min: 1000
+            max: 30000
+          - name : timestamp
+            type: timestamp
+            format: ddMMMyyyy HH:mm:ss
+          - name : inside_timestamp
+            type: timestamp
+            format: yyy-MM-dd HH:mm:ss
+        interval: 1000
+        messages_size: -1
+        messages:
+          # Error log
+          - '<%{priority}> %{server}.%{domain} id=firewall time="%{inside_timestamp}" fw="%{PROJ_ID}_%{FWL_POS}" tz=+0200 startime="%{inside_timestamp}" pri=5 confid=00 slotlevel=2 ruleid=%{rule} rulename="derog436" srcif="Agg0" srcifname="aggr0" ipproto=tcp dstif="vlan0" dstifname="aggr0.217" proto=http src=%{src_us} srcport=%{src_port} srcportname=ephemeral_fw_tcp srcname=%{srcname} dst=%{dst_ip} dstport=%{dst_port} dstportname=http dstname=etdhs modsrc=172.3.122.11 modsrcport=42018 origdst=24.172.2.104 origdstport=80 ipv=4 sent=%{sent} rcvd=%{rcvd} duration=%{duration} action=pass op=POST result=200 arg="/e-tdhs/TDHSwebServlet%3fsendCommand" logtype="plugin"'
+          # Compliant log
+          - '<%{priority}> %{syslog_timestamp} %{server}.%{domain} id=firewall time="%{inside_timestamp}" fw="%{PROJ_ID}_%{FWL_POS}" tz=+0200 startime="%{inside_timestamp}" pri=5 confid=00 slotlevel=2 ruleid=%{rule} rulename="derog436" srcif="Agg0" srcifname="aggr0" ipproto=tcp dstif="vlan0" dstifname="aggr0.217" proto=http src=%{src_us} srcport=%{src_port} srcportname=ephemeral_fw_tcp srcname=%{srcname} dst=%{dst_ip} dstport=%{dst_port} dstportname=http dstname=etdhs modsrc=172.3.122.11 modsrcport=42018 origdst=24.172.2.104 origdstport=80 ipv=4 sent=%{sent} rcvd=%{rcvd} duration=%{duration} action=pass op=POST result=200 arg="/e-tdhs/TDHSwebServlet%3fsendCommand" logtype="plugin"'
+      out:
+        - id: logs_sink
+          table: logs
+          columns:
+            - name: log
+              type: string
+    - id: logs_sink
+      type: http_sink
+      kind: sink
+      engine_settings:
+        tick_row_frequency_ms: 1000
+      settings:
+        debug: false
+        show: true
+        encoding_codec: punch
+        best_effort: false
+        bulk_size: 1000
+        bulk_interval: 1000
+        url: http://localhost:8090/

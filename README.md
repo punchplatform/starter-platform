@@ -13,3 +13,21 @@ The folders are the following:
 * conf/ingestion: a punch HTTP punchline to receive traffic from external devices.
 * devices: a set of punch devices to simulate external traffics. 
 
+## Kooker usage
+
+To upload the configuration to Kooker simply type in: 
+
+```sh
+./bin/upload.sh
+```
+
+You can then navigate to your punch board and start the various applications. 
+
+Next expose the Kooker HTTP service to your local host. The default network kooker configuration exposes a 8090 HTTP port. 
+Once your Kooker is up and running, use a port forwarding: 
+
+```sh
+kubectl port-forward service/compact-ingestion-http-service 8090:8090
+```
+
+You can then start the various punchlines in the 'devices' folder.  
