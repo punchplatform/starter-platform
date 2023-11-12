@@ -2,11 +2,11 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: compact-ingestion-http
+  name: ingestion-http
   labels:
     tenant: default
     channel: ingestion
-    app: compact-ingestion-http
+    app: ingestion-http
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
@@ -17,7 +17,7 @@ spec:
       imagePullPolicy: IfNotPresent
       env:
         - name: JDK_JAVA_OPTIONS
-          value: "-Xms100m -Xmx450m -Dpunchplatform.every_period_secs=3"
+          value: "-Xms100m -Xmx300m -Dpunchplatform.every_period_secs=10"
   dag:
     - id: input
       kind: source

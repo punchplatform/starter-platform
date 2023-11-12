@@ -1,0 +1,54 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: indexing-errors
+  labels:
+    tenant: default
+    channel: indexing
+    app: indexing-errors
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9090'
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/punchline-java:8.1-dev
+      env:
+        - name: JDK_JAVA_OPTIONS
+          value: "-Xms100m -Xmx512m  -Dpunchplatform.every_period_secs=10"
+  dag:
+    - id: input_errors
+      kind: source
+      type: kafka
+      settings:
+        start_offset_strategy: last_committed
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topics: default-errors
+        value.format: json
+      out:
+        - id: elastic_errors
+          table: logs
+          columns:
+            - name: _ppf_error_document
+              type: string
+
+    - id: elastic_errors
+      kind: sink
+      type: elasticsearch
+      settings:
+        http_hosts:
+          - host: elasticsearch-master.doc-store
+            port: 9200
+        security:
+          credentials:
+            username: elastic
+            password: elastic
+        index:
+          type: daily
+          prefix: default-errors-
+        document:
+          json_column: _ppf_error_document
+          extra_fields:
+            - type: date
+              name: ts

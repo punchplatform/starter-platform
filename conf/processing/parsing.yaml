@@ -1,0 +1,216 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: processing-parsing
+  labels:
+    tenant: default
+    channel: parsing
+    app: processing-parsing
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9090'
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/punchline-java:8.1-dev
+      env:
+        - name: JDK_JAVA_OPTIONS
+          value: "-Xms100m -Xmx1g -Dpunchplatform.every_period_secs=10"
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dependencies:
+    - punch-parsers:com.thalesgroup.punchplatform:core:3.0.8
+    - punch-parsers:com.thalesgroup.punchplatform:haproxy:2.0.0
+    - punch-parsers:com.thalesgroup.punchplatform:stormshield:3.1.0
+    - punch-parsers:com.github.punchplatform:microsoft:2.0.0
+  dag:
+    - id: input
+      kind: source
+      type: kafka
+      settings:
+        start_offset_strategy: last_committed
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topics: logs-input
+      out:
+        - id: parser
+          table: logs
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+    - id: parser
+      kind: function
+      type: parser
+      settings:
+        #debug: true
+        root_tuple_column: data
+        parsers:
+          # haproxy
+          - resources:
+              - name: ecs_groks
+                url: core/groks
+                type: file
+                format: grok2
+              - name: ecs_v1
+                url: /opt/punch/resources/ecs-v1
+                type: file
+                format: grok2
+            punchlets:
+              - "{ [event][original] = root; }"
+              - "{ [data_processing][unparsed_data] = [event][original]; }"
+              - core/parsing_syslog_ecs.punch
+              - haproxy/parser.punch
+              - "{ table:[haproxy] = row; }"
+          # stormshield
+          - resources:
+              - name: ecs_groks
+                url: core/groks
+                type: file
+                format: grok2
+            punchlets:
+              - "{ [event][original] = root; }"
+              - "{ [data_processing][unparsed_data] = [event][original]; }"
+              - core/parsing_syslog_ecs.punch
+              - main/punchlang/network_security/parser.punch
+              - "{ table:[stormshield] = row; }"
+          # microsoft
+          - resources:
+              - name: ecs_groks
+                url: core/groks
+                type: file
+                format: grok2
+              - name: win_log_event
+                url: main/punchlang/snare/resources/win_log_event.json
+                type: file
+                format: json
+            punchlets:
+              - "{ [event][original] = root; }"
+              - "{ [data_processing][unparsed_data] = [event][original]; }"
+              - main/punchlang/snare/win_log_event_parser.punch
+              - main/punchlang/snare/win_log_event_mapper.punch
+              - "{ table:[microsoft] = row; }"
+      out:
+        - id: kafka_errors
+          table: _ppf_errors
+          columns:
+            - name: _ppf_error_document
+              type: string
+        - id: enrich
+          table: haproxy
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+        - id: enrich
+          table: microsoft
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+        - id: enrich
+          table: stormshield
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+    - id: enrich
+      kind: function
+      type: punchlet
+      settings:
+        #debug: true
+        root_tuple_column: data
+        punchlets:
+          - "{ [event][id] = row:[_ppf_id]; }"
+      out:
+        - id: kafka_haproxy
+          table: haproxy
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+        - id: kafka_microsoft
+          table: microsoft
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+        - id: kafka_stormshield
+          table: stormshield
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+        - id: kafka_errors
+          table: _ppf_errors
+          columns:
+            - name: _ppf_error_document
+              type: string
+    - id: kafka_haproxy
+      kind: sink
+      type: kafka
+      settings:
+        show: true
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topic: default-haproxy
+        format: json
+    - id: kafka_microsoft
+      kind: sink
+      type: kafka
+      settings:
+        show: true
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topic: default-microsoft
+        format: json
+    - id: kafka_stormshield
+      kind: sink
+      type: kafka
+      settings:
+        show: true
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topic: default-stormshield
+        format: json
+    - id: kafka_errors
+      kind: sink
+      type: kafka
+      settings:
+        show: true
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topic: default-errors
+        format: json

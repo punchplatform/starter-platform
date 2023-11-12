@@ -1,0 +1,129 @@
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: simulator-logs
+  annotations:
+    prometheus.io/scrape: 'false'
+    punchplatform.thalesdigital.io/platform: platform
+  labels:
+    tenant: default
+    channel: simulator
+    app: simulator-logs
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/punchline-java:8.1-dev
+      env:
+        - name: JDK_JAVA_OPTIONS
+          value: "-Xms100m -Xmx1g -Dpunchplatform.every_period_secs=10"
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dag:
+    - id: data
+      type: generator_source
+      kind: source
+      settings:
+        fields:
+          - name: src_port
+            type: random
+            min: 1024
+            max: 32769
+          - name: server
+            type: list
+            content:
+              - server1
+              - server2
+          - name: back
+            type: list
+            content:
+              - back1
+              - back2
+          - name: back1
+            type: list
+            content:
+              - back11
+              - back12
+          - name: http_code
+            type: list
+            content:
+              - '200'
+              - '404'
+              - '301'
+          - name: domain
+            type: list
+            content:
+              - sail.com
+              - punch.com
+              - board.com
+              - surf.com
+          - name: src_ip
+            type: list
+            content:
+              - 92.149.90.114
+              - 92.149.90.114
+              - 92.149.90.114
+          - name: uri
+            type: list
+            content:
+              - GET /images/KSC-94EC-412-small.gif HTTP/1.0
+          - name: time
+            type: random
+            min: 0
+            max: 100
+          - name: time2
+            type: random
+            min: 0
+            max: 300
+          - name: time3
+            type: random
+            min: 1
+            max: 10
+          - name: time4
+            type: random
+            min: 100
+            max: 3000
+          - name: time5
+            type: random
+            min: 101
+            max: 3500
+          - name: bad_time4
+            type: random
+            min: 3000
+            max: 10000
+          - name: bad_time5
+            type: random
+            min: 3000
+            max: 10000
+          - name: priority
+            type: counter
+            min: 34
+            max: 35
+          - name: syslog_timestamp
+            type: timestamp
+            format: 'MMM dd HH:mm:ss'
+          - name: bytes
+            type: random
+            min: 1000
+            max: 30000
+          - name: queue
+            type: random
+            min: 0
+            max: 5
+        interval: 3000
+        messages_size: -1
+        messages:
+          - '<%{priority}> %{syslog_timestamp} %{server}.%{domain} %{src_ip}:%{src_port} [12/Jul/2021:05:54:55.077] myproxy http_back/back3 %{time}/%{time2}/%{time3}/%{bad_time4}/%{bad_time5} 200 %{bytes} - - ---- 5/2/2/5/%{time} %{queue}/%{queue} "%{uri}"'
+      out:
+        - id: logs
+          table: logs
+          columns:
+            - name: log
+              type: string
+    - id: logs
+      kind: sink
+      type: kafka
+      settings:
+        show: false
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topic: logs-input
