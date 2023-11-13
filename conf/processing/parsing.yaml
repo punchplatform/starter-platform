@@ -30,7 +30,7 @@ spec:
       kind: source
       type: kafka
       settings:
-        start_offset_strategy: last_committed
+        start_offset_strategy: latest
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topics: logs-input
       out:

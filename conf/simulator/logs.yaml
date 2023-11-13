@@ -118,12 +118,20 @@ spec:
         - id: logs
           table: logs
           columns:
-            - name: log
+            - name: data
               type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_host
+              type: string
+            - name: _ppf_timestamp
+              type: long
+            - name: _ppf_local_port
+              type: int
     - id: logs
       kind: sink
       type: kafka
       settings:
         show: false
-        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        bootstrap.servers: localhost:9092
         topic: logs-input
