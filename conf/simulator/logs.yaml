@@ -133,5 +133,6 @@ spec:
       type: kafka
       settings:
         show: false
-        bootstrap.servers: localhost:9092
+        debug: true
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: logs-input
