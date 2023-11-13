@@ -9,8 +9,9 @@ Here are the few files to use:
 
 The folders are the following:
 
-* conf/sample: a sample kubernetes deployment and service. It uses a K8 echo server.
+* conf/processing: a punch log parsing pipeline
 * conf/ingestion: a punch HTTP punchline to receive traffic from external devices.
+* conf/indexing: punch pipelines to insert the parsed logs or error documents into elasticsearch or opensearch
 * devices: a set of punch devices to simulate external traffics. 
 
 ## Kooker usage

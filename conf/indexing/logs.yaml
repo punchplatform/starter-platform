@@ -8,8 +8,11 @@ metadata:
     channel: indexing
     app: indexing-logs
   annotations:
-    prometheus.io/scrape: 'true'
-    prometheus.io/port: '9090'
+    prometheus.io/scrape: 'false'
+    prometheus.io/port: '0'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
+
 spec:
   containers:
     applicationContainer:
@@ -44,6 +47,7 @@ spec:
       kind: sink
       type: elasticsearch
       settings:
+        show: true
         http_hosts:
           - host: elasticsearch-master.doc-store
             port: 9200

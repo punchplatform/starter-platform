@@ -10,6 +10,8 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
 spec:
   containers:
     applicationContainer:
@@ -186,7 +188,7 @@ spec:
       kind: sink
       type: kafka
       settings:
-        show: true
+        show: false
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-haproxy
         format: json
@@ -194,7 +196,7 @@ spec:
       kind: sink
       type: kafka
       settings:
-        show: true
+        show: false
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-microsoft
         format: json
@@ -202,7 +204,7 @@ spec:
       kind: sink
       type: kafka
       settings:
-        show: true
+        show: false
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-stormshield
         format: json
@@ -210,7 +212,7 @@ spec:
       kind: sink
       type: kafka
       settings:
-        show: true
+        show: false
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-errors
         format: json
