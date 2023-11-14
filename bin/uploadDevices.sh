@@ -16,6 +16,7 @@ upload_yaml() {
     echo "$json_data" | curl -s -X POST -H 'Content-Type: application/json' -d @- ${ARTIFACT_SERVER_URL}/v1/devices/device
 }
 
-upload_yaml "${here}/../devices/ha_proxy.yaml"
+upload_yaml "${here}/../devices/ha_proxy_java.yaml"
+upload_yaml "${here}/../devices/ha_proxy_rust.yaml"
 upload_yaml "${here}/../devices/microsoft_snare.yaml"
 upload_yaml "${here}/../devices/stormshield_networksecurity.yaml"

@@ -26,6 +26,6 @@ upload_yaml "${here}/../conf/ingestion/http_service.yaml" "v1/configuration/inge
 upload_yaml "${here}/../conf/indexing/logs.yaml" "v1/configuration/indexing"
 upload_yaml "${here}/../conf/indexing/errors.yaml" "v1/configuration/indexing"
 upload_yaml "${here}/../conf/processing/parsing.yaml" "v1/configuration/processing"
-upload_yaml "${here}/../conf/processing/aggregation.yaml" "v1/configuration/simulator"
+upload_yaml "${here}/../conf/processing/aggregation.yaml" "v1/configuration/processing"
 upload_yaml "${here}/../conf/simulator/logs.yaml" "v1/configuration/simulator"
 
