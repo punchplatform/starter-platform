@@ -265,4 +265,4 @@ spec:
         best_effort: false
         bulk_size: 1000
         bulk_interval: 1000
-        url: http://localhost:8090/
+        url: http://ingestion.punchplatform.com:8090/

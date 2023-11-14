@@ -1,17 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: compact-ingestion-http-ingress
+  name: ingestion-http-ingress
 spec:
   rules:
-    - host: ingestion.dev.punchplatform.com
+    - host: ingestion.punchplatform.com
       http:
         paths:
           - path: /
             pathType: ImplementationSpecific
             backend:
               service:
-                name: compact-ingestion-http-service
+                name: ingestion-http-service
                 port:
-                  number: 9093
+                  number: 8090
   ingressClassName : nginx

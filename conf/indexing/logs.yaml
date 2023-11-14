@@ -28,7 +28,8 @@ spec:
       kind: source
       type: kafka
       settings:
-        start_offset_strategy: last_committed
+        debug: false
+        start_offset_strategy: latest
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topics: default-haproxy,default-stormshield,default-microsoft
         value.format: json
@@ -36,7 +37,7 @@ spec:
         - id: elastic
           table: logs
           columns:
-            - name: data
+            - name: data  
               type: string
             - name: _ppf_id
               type: string
@@ -47,7 +48,7 @@ spec:
       kind: sink
       type: elasticsearch
       settings:
-        show: true
+        show: false
         http_hosts:
           - host: elasticsearch-master.doc-store
             port: 9200

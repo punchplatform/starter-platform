@@ -21,6 +21,7 @@ upload_yaml() {
 }
 
 upload_yaml "${here}/../conf/ingestion/http.yaml" "v1/configuration/ingestion"
+upload_yaml "${here}/../conf/ingestion/http_ingress.yaml" "v1/configuration/ingestion"
 upload_yaml "${here}/../conf/ingestion/http_service.yaml" "v1/configuration/ingestion"
 upload_yaml "${here}/../conf/indexing/logs.yaml" "v1/configuration/indexing"
 upload_yaml "${here}/../conf/indexing/errors.yaml" "v1/configuration/indexing"
