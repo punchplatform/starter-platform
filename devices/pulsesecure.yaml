@@ -1,0 +1,49 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: BatchPunchline
+metadata:
+  name: pulsesecure
+  annotations:
+    prometheus.io/scrape: 'false'
+    punchplatform.thalesdigital.io/platform: platform
+    devices.punchplatform.com/id: zone-europe-west1-pulsesecure-h1
+    devices.punchplatform.com/version: "3.1"
+    devices.punchplatform.com/inactivityTimeout: "30"
+    devices.punchplatform.com/refreshIntervalSeconds: "10"
+    devices.punchplatform.com/vendor: "iot.punchplatform.com"
+    devices.punchplatform.com/adminUrl: "http://artifacts-server.punch:8080/v1/devices/device"
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.punch:8080
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/rline:0.1-dev
+  dag:
+    - id: input
+      kind: source
+      type: generator
+      exit_conditions:
+        success:
+          acks_greater_or_equal_to: 1
+        failure:
+          fails_greater_or_equal_to: 1
+      settings:
+        interval: 500
+        messages:
+          - "<347>May 22 15:51:57 202.85.66.104 PulseSecure: id=firewall time=\"2023-05-22T15:51:57\" pri=3 fw=207.229.112.111 vpn=ive ivs=Default Network user=ROOT::System realm=\"powerUser\" roles=\"ROLE-saas,ROLE-regd\" proto=auth src=66.202.104.85 dst= dstname= type=vpn op= arg=\"\" result= sent= rcvd= agent=\"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0\" duration= msg=\"AUT21082: Account disabled by password management on auth server\""
+      out:
+        - id: logs_sink
+          table: messages
+          columns:
+            - name: default
+              type: string
+    - id: logs_sink
+      type: http
+      kind: sink
+      engine_settings:
+        tick_row_frequency_ms: 1000
+      settings:
+        bulk_size: 1000
+        url: http://ingestion.punchplatform.com:8090/
+
+
