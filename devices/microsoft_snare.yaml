@@ -576,17 +576,17 @@ spec:
         - id: logs_sink
           table: logs
           columns:
-            - name: log
+            - name: data
               type: string
 
     - id: logs_sink
-      type: http_sink
+      type: http
       kind: sink
       engine_settings:
         tick_row_frequency_ms: 1000
       settings:
         debug: false
-        show: true
+        show: false
         encoding_codec: punch
         best_effort: false
         bulk_size: 1000

@@ -442,7 +442,7 @@ spec:
             type: random
             min: 0
             max: 5
-        interval: 10000
+        interval: 1000
         messages_size: -1
         messages:
           - '<%{priority}> %{server}.%{domain} %{src_ip}:%{src_port} [12/Jul/2021:05:54:55.077] myproxy http_back/%{back} %{time}/%{time2}/%{time3}/%{time4}/%{time5} 200 %{bytes} - - ---- 5/2/1/5/1 %{queue}/%{queue} "%{uri}"'
@@ -458,17 +458,16 @@ spec:
         - id: logs_sink
           table: logs
           columns:
-            - name: log
+            - name: data
               type: string
-
     - id: logs_sink
-      type: http_sink
+      type: http
       kind: sink
       engine_settings:
         tick_row_frequency_ms: 1000
       settings:
         debug: false
-        show: true
+        show: false
         encoding_codec: punch
         best_effort: false
         bulk_size: 1000

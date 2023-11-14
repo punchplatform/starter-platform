@@ -248,19 +248,19 @@ spec:
           # Compliant log
           - '<%{priority}> %{syslog_timestamp} %{server}.%{domain} id=firewall time="%{inside_timestamp}" fw="%{PROJ_ID}_%{FWL_POS}" tz=+0200 startime="%{inside_timestamp}" pri=5 confid=00 slotlevel=2 ruleid=%{rule} rulename="derog436" srcif="Agg0" srcifname="aggr0" ipproto=tcp dstif="vlan0" dstifname="aggr0.217" proto=http src=%{src_us} srcport=%{src_port} srcportname=ephemeral_fw_tcp srcname=%{srcname} dst=%{dst_ip} dstport=%{dst_port} dstportname=http dstname=etdhs modsrc=172.3.122.11 modsrcport=42018 origdst=24.172.2.104 origdstport=80 ipv=4 sent=%{sent} rcvd=%{rcvd} duration=%{duration} action=pass op=POST result=200 arg="/e-tdhs/TDHSwebServlet%3fsendCommand" logtype="plugin"'
       out:
-        - id: logs_sink
+        - id: sink
           table: logs
           columns:
-            - name: log
+            - name: data
               type: string
-    - id: logs_sink
-      type: http_sink
+    - id: sink
+      type: http
       kind: sink
       engine_settings:
         tick_row_frequency_ms: 1000
       settings:
         debug: false
-        show: true
+        show: false
         encoding_codec: punch
         best_effort: false
         bulk_size: 1000
