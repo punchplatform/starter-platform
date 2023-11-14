@@ -17,3 +17,5 @@ upload_yaml() {
 }
 
 upload_yaml "${here}/../devices/ha_proxy.yaml"
+upload_yaml "${here}/../devices/microsoft_snare.yaml"
+upload_yaml "${here}/../devices/stormshield_networksecurity.yaml"
