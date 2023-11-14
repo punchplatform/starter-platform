@@ -19,7 +19,7 @@ The folders are the following:
 To upload the configuration to Kooker simply type in: 
 
 ```sh
-./bin/upload.sh
+./bin/uploadConf.sh
 ```
 
 You can then navigate to your punch board and start the various applications. 
@@ -32,3 +32,14 @@ kubectl port-forward service/compact-ingestion-http-service 8090:8090
 ```
 
 You can then start the various punchlines in the 'devices' folder.  
+
+## Play with devices
+
+A punch devices signals itself to the central Punch using a REST API. 
+You can also pre-provision the devices directly. Type in:
+
+```sh
+./bin/uploadDevices.sh
+```
+Note that the devices will be considered active for 30 seconds. Punch device server maintains
+a timeout for each. 
