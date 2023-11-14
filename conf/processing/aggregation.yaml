@@ -1,0 +1,58 @@
+---
+apiVersion: scheduler.punchplatform.io/v2
+kind: Plan
+metadata:
+  name: processing-aggregation
+spec:
+  kind: BatchPunchline
+  interval: 10s
+  checkpointRef:
+    name: processing-aggregation
+    kind: ConfigMap
+  #cron: "* * * * *"
+  dates:
+    from:
+      offset: "-10h45m"
+      format: "2006-01-02T15:04:05-0700"
+  templateSpec:
+    containers:
+      serviceAccount: admin-user
+      applicationContainer:
+        image: ghcr.io/punchplatform/punchline-python:8.1-dev
+        imagePullPolicy: IfNotPresent
+    jobSettings:
+      backoffLimit: 10
+    dag:
+      - id: input
+        type: elasticsearch
+        kind: source
+        settings:
+          http_hosts:
+            - host: elasticsearch-master.doc-store
+              port: 9200
+              scheme: http
+          index: default-ha
+          query_string: >
+            {
+              "query": {
+                "bool": {
+                  "must": [
+                    {
+                      "range": {
+                        "@timestamp": {
+                          "gte": "{{ .from }}-5m",
+                          "lte": "{{ .from }}"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+
+        out:
+          - id: output
+            table: documents
+      - id: output
+        kind: sink
+        type: show
