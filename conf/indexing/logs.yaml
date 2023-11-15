@@ -58,6 +58,10 @@ spec:
         index:
           type: daily
           prefix_column: _ppf_topic
+          whitelist:
+          - default-apache
+          - default-microsoft
+          - default-stormshield
         document:
           json_column: data
           id_column: _ppf_id
