@@ -4,8 +4,6 @@ kind: StreamPunchline
 metadata:
   name: indexing-logs
   labels:
-    tenant: default
-    channel: indexing
     app: logs
   annotations:
     prometheus.io/scrape: 'false'
@@ -59,7 +57,7 @@ spec:
           type: daily
           prefix_column: _ppf_topic
           whitelist:
-          - default-apache
+          - default-haproxy
           - default-microsoft
           - default-stormshield
         document:

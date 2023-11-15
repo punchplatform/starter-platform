@@ -4,8 +4,6 @@ kind: StreamPunchline
 metadata:
   name: processing-raw
   labels:
-    tenant: default
-    channel: processing
     app: raw
   annotations:
     prometheus.io/scrape: 'true'

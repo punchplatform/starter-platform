@@ -4,8 +4,6 @@ kind: StreamPunchline
 metadata:
   name: indexing-errors
   labels:
-    tenant: default
-    channel: indexing
     app: errors
   annotations:
     prometheus.io/scrape: 'true'

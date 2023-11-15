@@ -4,9 +4,7 @@ kind: StreamPunchline
 metadata:
   name: ingestion-http
   labels:
-    tenant: default
-    channel: ingestion
-    app: http
+    app: ingestion-http
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
