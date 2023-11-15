@@ -16,6 +16,8 @@ metadata:
 spec:
   containers:
     applicationContainer:
+      # This image field is required even if outside Kubernetes. It clearly indicates the
+      # binary version of your punchline engine. Here the java 8.1-dev release. 
       image: ghcr.io/punchplatform/punchline-java:8.1-dev
       env:
         - name: JDK_JAVA_OPTIONS
@@ -466,8 +468,12 @@ spec:
       engine_settings:
         tick_row_frequency_ms: 1000
       settings:
+        # Activating debug will print useful information, without skipping the sending of the data.
         debug: false
+        # Activating show make the sink pretty print the data, but skips the sending.
         show: false
+        # The punch encoding format make HTTP body contains the table, row schemas together with the
+        # encoded rows.
         encoding_codec: punch
         best_effort: false
         bulk_size: 1000
