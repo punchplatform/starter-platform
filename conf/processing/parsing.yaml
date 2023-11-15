@@ -32,6 +32,7 @@ spec:
       kind: source
       type: kafka
       settings:
+        show: true
         start_offset_strategy: latest
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topics: logs-input
@@ -141,7 +142,7 @@ spec:
       kind: function
       type: punchlet
       settings:
-        #debug: true
+        debug: false
         root_tuple_column: data
         punchlets:
           - "{ [event][id] = row:[_ppf_id]; }"
@@ -189,6 +190,7 @@ spec:
       type: kafka
       settings:
         show: false
+        show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-haproxy
         format: json
@@ -197,6 +199,7 @@ spec:
       type: kafka
       settings:
         show: false
+        show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-microsoft
         format: json
@@ -205,6 +208,7 @@ spec:
       type: kafka
       settings:
         show: false
+        show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-stormshield
         format: json
@@ -213,6 +217,7 @@ spec:
       type: kafka
       settings:
         show: false
+        show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-errors
         format: json
