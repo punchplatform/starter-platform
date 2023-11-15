@@ -10,8 +10,8 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
-    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
-    metrics.punchplatform.com/pushIntervalSeconds: '10'
+    #metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    #metrics.punchplatform.com/pushIntervalSeconds: '10'
 spec:
   containers:
     applicationContainer:
@@ -21,21 +21,42 @@ spec:
         - name: JDK_JAVA_OPTIONS
           value: "-Xms100m -Xmx300m -Dpunchplatform.every_period_secs=10"
   dag:
+    # The HTTP source act as your receiver HTTP server, receiving payload from
+    # external devices or applications.
     - id: input
       kind: source
       type: http_source
       settings:
-        debug: false
-        url: "http://0.0.0.0:8080"
+        debug: true
+        url: "http://0.0.0.0:8090"
       out:
-        - id: logs
+        - id: sink
+          # This table and column is explicit. It means that devices or external data providers
+          # must send JSON data that have either an array of JSON data with the 'data' field
+          # or a complete body that includes the JSON schema with table 'logs' and colums 'data'.
+          #
+          # The extra _ppf_xxx columns will be added automatically if missing from the received 
+          # body. 
           table: logs
-    
-    - id: logs
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+    # The records are inserted into Kafka. The table name (here logs) is not
+    # part of the encoding data. Only the columns name and values.
+    # In the following configuration rows are encoded using a binary key value
+    # format for efficiency. Punch also supports JSON or AVRO encoding.
+    - id: sink
       kind: sink
       type: kafka
       settings:
-        show: true
+        show: false
+        show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: logs-input
     

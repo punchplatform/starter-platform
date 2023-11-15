@@ -11,6 +11,6 @@ spec:
     - name: httpinput
       protocol: TCP
       port: 8090
-      targetPort: 8080
+      targetPort: 8090
   selector:
     app: ingestion-http
