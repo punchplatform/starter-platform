@@ -27,7 +27,7 @@ spec:
       kind: source
       type: http_source
       settings:
-        debug: true
+        debug: false
         url: "http://0.0.0.0:8090"
       out:
         - id: sink

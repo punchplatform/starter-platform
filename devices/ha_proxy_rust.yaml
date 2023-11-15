@@ -25,7 +25,6 @@ spec:
       settings:
         interval: 1000
         messages_column:
-          - data: "<34> server1.sail.com 92.149.90.114:15712 [12/Jul/2021:05:54:55.077] myproxy http_back/back1 77/121/8/184/870 200 25010 - - ---- 5/2/1/5/1 5/5 \"GET /images/KSC-94EC-412-small.gif HTTP/1.0\""
           - data: "<35> Nov 14 16:14:14 server2.punch.com 92.149.90.114:16346 [12/Jul/2021:05:54:55.077] myproxy http_back/back3 41/104/1/3936/7638 200 22112 - - ---- 5/2/2/5/41 3/3 \"GET /persons/astronauts/i-to-l/lousmaJR.txt HTTP/1.0\""
       out:
         - id: sink
