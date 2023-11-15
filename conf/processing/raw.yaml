@@ -70,7 +70,7 @@ spec:
             password: qoZKuibf96*U_r-ILhbW
         index:
           type: daily
-          prefix_column: default-raw
+          prefix: default-raw
         document:
           json_column: data
           extra_fields:
