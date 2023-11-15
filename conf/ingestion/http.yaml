@@ -6,7 +6,7 @@ metadata:
   labels:
     tenant: default
     channel: ingestion
-    app: ingestion-http
+    app: http
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'

@@ -2,7 +2,7 @@
 apiVersion: scheduler.punchplatform.io/v2
 kind: Plan
 metadata:
-  name: processing-aggregation
+  name: processing-aggregation-plan
 spec:
   kind: BatchPunchline
   interval: 10s
@@ -15,6 +15,10 @@ spec:
       offset: "-10h45m"
       format: "2006-01-02T15:04:05-0700"
   templateSpec:
+    labels:
+      tenant: default
+      channel: processing
+      app: aggregation
     containers:
       serviceAccount: admin-user
       applicationContainer:

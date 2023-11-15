@@ -5,8 +5,8 @@ metadata:
   name: processing-parsing
   labels:
     tenant: default
-    channel: parsing
-    app: processing-parsing
+    channel: processing
+    app: parsing
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
@@ -189,7 +189,7 @@ spec:
       kind: sink
       type: kafka
       settings:
-        show: false
+        show: true
         show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-haproxy
@@ -216,7 +216,7 @@ spec:
       kind: sink
       type: kafka
       settings:
-        show: false
+        show: true
         show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-errors

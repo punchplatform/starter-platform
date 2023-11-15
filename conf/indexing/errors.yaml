@@ -6,7 +6,7 @@ metadata:
   labels:
     tenant: default
     channel: indexing
-    app: indexing-errors
+    app: errors
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'

@@ -9,7 +9,7 @@ metadata:
   labels:
     tenant: default
     channel: simulator
-    app: simulator-logs
+    app: logs
 spec:
   containers:
     applicationContainer:
