@@ -1,7 +1,7 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: stormshield_networksecurity
+  name: stormshield-networksecurity
   annotations:
     prometheus.io/scrape: 'false'
     punchplatform.thalesdigital.io/platform: platform

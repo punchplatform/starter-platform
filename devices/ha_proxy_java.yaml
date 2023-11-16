@@ -1,7 +1,7 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: haproxy
+  name: haproxy-java
   annotations:
     prometheus.io/scrape: 'false'
     punchplatform.thalesdigital.io/platform: platform

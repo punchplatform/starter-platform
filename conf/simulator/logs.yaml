@@ -7,9 +7,7 @@ metadata:
     metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
     metrics.punchplatform.com/pushIntervalSeconds: '10'
   labels:
-    tenant: default
-    channel: simulator
-    app: logs
+    app: simulator-logs
 spec:
   containers:
     applicationContainer:

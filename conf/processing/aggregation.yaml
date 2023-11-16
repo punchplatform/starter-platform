@@ -3,6 +3,8 @@ apiVersion: scheduler.punchplatform.io/v2
 kind: Plan
 metadata:
   name: processing-aggregation-plan
+  labels:
+    app: processing-aggregation-plan
 spec:
   kind: BatchPunchline
   interval: 10s

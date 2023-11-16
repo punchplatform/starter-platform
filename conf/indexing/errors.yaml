@@ -4,7 +4,7 @@ kind: StreamPunchline
 metadata:
   name: indexing-errors
   labels:
-    app: errors
+    app: indexing-errors
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'

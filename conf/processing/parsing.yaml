@@ -4,7 +4,7 @@ kind: StreamPunchline
 metadata:
   name: processing-parsing
   labels:
-    app: parsing
+    app: processing-parsing
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
