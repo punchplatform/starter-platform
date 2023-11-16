@@ -8,26 +8,28 @@ metadata:
 spec:
   kind: BatchPunchline
   interval: 10s
+  #cron: "* * * * *"
   checkpointRef:
     name: processing-aggregation
     kind: ConfigMap
-  #cron: "* * * * *"
   dates:
     from:
       offset: "-10h45m"
       format: "2006-01-02T15:04:05-0700"
   templateSpec:
     labels:
-      tenant: default
-      channel: processing
       app: aggregation
     containers:
       serviceAccount: admin-user
-      applicationContainer:
-        image: ghcr.io/punchplatform/punchline-python:8.1-dev
+      resourcesInitContainer:
+        image: ghcr.io/punchplatform/resourcectl:8.1-dev
         imagePullPolicy: IfNotPresent
-    jobSettings:
-      backoffLimit: 10
+        resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+      applicationContainer:
+        image: ghcr.io/punchplatform/punchline-java:8.1-dev
+        env:
+          - name: JDK_JAVA_OPTIONS
+            value: "-Xms100m -Xmx450m"
     dag:
       - id: input
         type: elasticsearch
@@ -37,25 +39,13 @@ spec:
             - host: elasticsearch-master.doc-store
               port: 9200
               scheme: http
-          index: default-ha
-          query_string: >
+          index: default-haproxy-2023.11.16
+          query: >
             {
-              "query": {
-                "bool": {
-                  "must": [
-                    {
-                      "range": {
-                        "@timestamp": {
-                          "gte": "{{ .from }}-5m",
-                          "lte": "{{ .from }}"
-                        }
-                      }
-                    }
-                  ]
-                }
+              "query":{
+                "match_all":{}
               }
             }
-
         out:
           - id: output
             table: documents
