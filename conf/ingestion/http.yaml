@@ -8,8 +8,8 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
-    #metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
-    #metrics.punchplatform.com/pushIntervalSeconds: '10'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
 spec:
   containers:
     applicationContainer:
