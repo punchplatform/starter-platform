@@ -1,4 +1,10 @@
 ---
+# This is a plan that will be executed by the scheduler. It will run the punchline
+# defined in the templateSpec section. The punchline will be executed every 10 seconds.
+# The checkpointRef section is used to store the last execution date of the punchline.
+#
+# The punchline simply reads a fraction of the documents from the default-haproxy-* index
+# and writes them to the default-aggregation-* index.
 apiVersion: scheduler.punchplatform.io/v2
 kind: Plan
 metadata:
@@ -8,7 +14,7 @@ metadata:
 spec:
   kind: BatchPunchline
   interval: 10s
-  #cron: "* * * * *"
+  # Instead of interval you can use a cron expression
   checkpointRef:
     name: processing-aggregation
     kind: ConfigMap
@@ -46,12 +52,17 @@ spec:
           index: default-haproxy-*
           query: >
             {
-              "query":{
-                "match_all":{}
-              }
+            "query": {
+                "match": {
+                "log.syslog.hostname": "server1.board.com"
+                }
             }
+            }
+          size: 50
+          from: 0
+          scroll: true
           scroll_keep_alive: "10m"
-          scroll_size: 10000
+          scroll_size: 50
           max_concurrent_shard_requests: 5
           mode: source
         out:
@@ -62,9 +73,19 @@ spec:
                 type: string
 
       - id: output
-        type: punchlet
-        kind: function
+        kind: sink
+        type: elasticsearch
         settings:
-          debug: true
-          punchlets:
-            - "{debug(root);}"
+          show: false
+          http_hosts:
+            - host: elasticsearch-master.doc-store
+              port: 9200
+          security:
+            credentials:
+              username: elastic
+              password: elastic
+          index:
+            type: daily
+            prefix: default-aggregation-
+          document:
+            json_column: doc_field
