@@ -30,7 +30,7 @@ spec:
       kind: source
       type: kafka
       settings:
-        show: true
+        show: false
         start_offset_strategy: latest
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topics: logs-input
@@ -187,7 +187,7 @@ spec:
       kind: sink
       type: kafka
       settings:
-        show: true
+        show: false
         show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-haproxy
@@ -214,7 +214,7 @@ spec:
       kind: sink
       type: kafka
       settings:
-        show: true
+        show: false
         show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-errors
