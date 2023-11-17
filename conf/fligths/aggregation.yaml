@@ -1,4 +1,10 @@
 ---
+# This is a plan. Plans are cron-like punch facilities. A plan runs the punchline
+# defined in the templateSpec section. Here the punchline will be executed every 10 seconds.
+# The checkpointRef section is used to store the last execution date of the punchline.
+#
+# The punchline simply reads a fraction of the documents from the default-haproxy-* index
+# and writes them to the default-aggregation-* index.
 apiVersion: scheduler.punchplatform.io/v2
 kind: Plan
 metadata:
@@ -8,13 +14,13 @@ metadata:
 spec:
   kind: BatchPunchline
   interval: 10s
-  #cron: "* * * * *"
+  # Instead of interval you can use a cron expression
   checkpointRef:
     name: processing-aggregation
     kind: ConfigMap
   dates:
     from:
-      offset: "-10h45m"
+      offset: "+02h00m"
       format: "2006-01-02T15:04:05-0700"
   templateSpec:
     containers:
@@ -33,7 +39,7 @@ spec:
         type: elasticsearch
         kind: source
         settings:
-          debug: true
+          debug: false
           http_hosts:
             - host: elasticsearch-master.doc-store
               port: 9200
@@ -46,12 +52,29 @@ spec:
           index: default-haproxy-*
           query: >
             {
-              "query":{
-                "match_all":{}
-              }
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "match": {
+                                    "log.syslog.hostname": "server1.board.com"
+                                }
+                            },
+                            {
+                                "range": {
+                                    "@timestamp": {
+                                        "gte": "now-10m/m",
+                                        "lte": "now/m"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
             }
+          scroll: true
           scroll_keep_alive: "10m"
-          scroll_size: 10000
+          scroll_size: 1000
           max_concurrent_shard_requests: 5
           mode: source
         out:
@@ -62,9 +85,19 @@ spec:
                 type: string
 
       - id: output
-        type: punchlet
-        kind: function
+        kind: sink
+        type: elasticsearch
         settings:
-          debug: true
-          punchlets:
-            - "{debug(root);}"
+          show: false
+          http_hosts:
+            - host: elasticsearch-master.doc-store
+              port: 9200
+          security:
+            credentials:
+              username: elastic
+              password: elastic
+          index:
+            type: daily
+            prefix: default-aggregation-
+          document:
+            json_column: doc_field
