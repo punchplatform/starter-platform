@@ -2,7 +2,7 @@
 apiVersion: scheduler.punchplatform.io/v2
 kind: Plan
 metadata:
-  name: processing-aggregation-plan
+  name: fligths-aggregation
   annotations:
     prometheus.io/push-gateway: http://artifacts-server.artifacts-server:4245
 spec:

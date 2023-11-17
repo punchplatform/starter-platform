@@ -2,21 +2,22 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: processing-raw
+  name: cyber-indexing-logs
   labels:
-    app: processing-raw
+    app: cyber-indexing-logs
   annotations:
-    prometheus.io/scrape: 'true'
-    prometheus.io/port: '9090'
-    #metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
-    #metrics.punchplatform.com/pushIntervalSeconds: '10'
+    prometheus.io/scrape: 'false'
+    prometheus.io/port: '0'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
+
 spec:
   containers:
     applicationContainer:
       image: ghcr.io/punchplatform/punchline-java:8.1-dev
       env:
         - name: JDK_JAVA_OPTIONS
-          value: "-Xms100m -Xmx1g -Dpunchplatform.every_period_secs=10"
+          value: "-Xms100m -Xmx512m -Dpunchplatform.every_period_secs=10"
     resourcesInitContainer:
       image: ghcr.io/punchplatform/resourcectl:8.1-dev
       resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
@@ -25,40 +26,26 @@ spec:
       kind: source
       type: kafka
       settings:
-        show: true
+        debug: false
         start_offset_strategy: latest
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
-        topics: logs-input
-      out:
-        - id: print
-          table: logs
-          columns:
-            - name: data
-              type: string
-            - name: _ppf_id
-              type: string
-            - name: _ppf_local_port
-              type: int
-            - name: _ppf_local_host
-              type: string
-    - id: print
-      kind: function
-      type: punchlet
-      settings:
-        debug: true
-        punchlets:
-          - "{ debug(root); }"
+        topics: default-haproxy,default-stormshield,default-microsoft
+        value.format: json
       out:
         - id: elastic
           table: logs
           columns:
-            - name: data
+            - name: data  
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_topic
               type: string
     - id: elastic
       kind: sink
       type: elasticsearch
       settings:
-        show: true
+        show: false
         http_hosts:
           - host: elasticsearch-master.doc-store
             port: 9200
@@ -68,9 +55,14 @@ spec:
             password: qoZKuibf96*U_r-ILhbW
         index:
           type: daily
-          prefix: default-raw
+          prefix_column: _ppf_topic
+          whitelist:
+          - default-haproxy
+          - default-microsoft
+          - default-stormshield
         document:
           json_column: data
+          id_column: _ppf_id
           extra_fields:
             - type: date
               name: ts

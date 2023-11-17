@@ -2,9 +2,9 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: ingestion-http
+  name: cyber-ingestion-http
   labels:
-    app: ingestion-http
+    app: cyber-ingestion-http
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'

@@ -1,13 +1,13 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: simulator-logs
+  name: cyber-simulator-logs
   annotations:
     prometheus.io/scrape: 'false'
     metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
     metrics.punchplatform.com/pushIntervalSeconds: '10'
   labels:
-    app: simulator-logs
+    app: cyber-simulator-logs
 spec:
   containers:
     applicationContainer:

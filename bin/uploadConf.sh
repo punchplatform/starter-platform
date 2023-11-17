@@ -20,12 +20,12 @@ upload_yaml() {
     echo ""
 }
 
-upload_yaml "${here}/../conf/ingestion/http.yaml" "v1/configuration/ingestion"
-upload_yaml "${here}/../conf/ingestion/http_ingress.yaml" "v1/configuration/ingestion"
-upload_yaml "${here}/../conf/ingestion/http_service.yaml" "v1/configuration/ingestion"
-upload_yaml "${here}/../conf/indexing/logs.yaml" "v1/configuration/indexing"
-upload_yaml "${here}/../conf/indexing/errors.yaml" "v1/configuration/indexing"
-upload_yaml "${here}/../conf/processing/parsing.yaml" "v1/configuration/processing"
-upload_yaml "${here}/../conf/processing/aggregation.yaml" "v1/configuration/processing"
-upload_yaml "${here}/../conf/simulator/logs.yaml" "v1/configuration/simulator"
+upload_yaml "${here}/../conf/cyber/ingestion/http.yaml" "v1/configuration/cyber/ingestion"
+upload_yaml "${here}/../conf/cyber/ingestion/http_ingress.yaml" "v1/configuration/cyber/ingestion"
+upload_yaml "${here}/../conf/cyber/ingestion/http_service.yaml" "v1/configuration/cyber/ingestion"
+upload_yaml "${here}/../conf/cyber/indexing/logs.yaml" "v1/configuration/cyber/indexing"
+upload_yaml "${here}/../conf/cyber/indexing/errors.yaml" "v1/configuration/cyber/indexing"
+upload_yaml "${here}/../conf/cyber/processing/parsing.yaml" "v1/configuration/cyber/processing"
+upload_yaml "${here}/../conf/cyber/simulator/logs.yaml" "v1/configuration/cyber/simulator"
+upload_yaml "${here}/../conf/fligths/aggregation.yaml" "v1/configuration/flights"
 
