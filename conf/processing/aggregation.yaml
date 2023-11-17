@@ -3,6 +3,8 @@ apiVersion: scheduler.punchplatform.io/v2
 kind: Plan
 metadata:
   name: processing-aggregation-plan
+  annotations:
+    prometheus.io/push-gateway: http://artifacts-server.artifacts-server:4245
 spec:
   kind: BatchPunchline
   interval: 10s
@@ -31,20 +33,38 @@ spec:
         type: elasticsearch
         kind: source
         settings:
+          debug: true
           http_hosts:
             - host: elasticsearch-master.doc-store
               port: 9200
               scheme: http
-          index: default-haproxy-2023.11.16
+          security:
+            ssl:
+            credentials:
+              username: elastic
+              password: elastic
+          index: default-haproxy-*
           query: >
             {
               "query":{
                 "match_all":{}
               }
             }
+          scroll_keep_alive: "10m"
+          scroll_size: 10000
+          max_concurrent_shard_requests: 5
+          mode: source
         out:
           - id: output
             table: documents
+            columns:
+              - name: doc_field
+                type: string
+
       - id: output
-        kind: sink
-        type: show
+        type: punchlet
+        kind: function
+        settings:
+          debug: true
+          punchlets:
+            - "{debug(root);}"
