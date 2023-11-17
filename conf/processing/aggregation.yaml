@@ -1,6 +1,6 @@
 ---
-# This is a plan that will be executed by the scheduler. It will run the punchline
-# defined in the templateSpec section. The punchline will be executed every 10 seconds.
+# This is a plan. Plans are cron-like punch facilities. A plan runs the punchline
+# defined in the templateSpec section. Here the punchline will be executed every 10 seconds.
 # The checkpointRef section is used to store the last execution date of the punchline.
 #
 # The punchline simply reads a fraction of the documents from the default-haproxy-* index
@@ -20,7 +20,7 @@ spec:
     kind: ConfigMap
   dates:
     from:
-      offset: "-10h45m"
+      offset: "+02h00m"
       format: "2006-01-02T15:04:05-0700"
   templateSpec:
     containers:
@@ -39,7 +39,7 @@ spec:
         type: elasticsearch
         kind: source
         settings:
-          debug: true
+          debug: false
           http_hosts:
             - host: elasticsearch-master.doc-store
               port: 9200
@@ -52,17 +52,29 @@ spec:
           index: default-haproxy-*
           query: >
             {
-            "query": {
-                "match": {
-                "log.syslog.hostname": "server1.board.com"
+                "query": {
+                    "bool": {
+                        "must": [
+                            {
+                                "match": {
+                                    "log.syslog.hostname": "server1.board.com"
+                                }
+                            },
+                            {
+                                "range": {
+                                    "@timestamp": {
+                                        "gte": "now-10m/m",
+                                        "lte": "now/m"
+                                    }
+                                }
+                            }
+                        ]
+                    }
                 }
             }
-            }
-          size: 50
-          from: 0
           scroll: true
           scroll_keep_alive: "10m"
-          scroll_size: 50
+          scroll_size: 1000
           max_concurrent_shard_requests: 5
           mode: source
         out:
