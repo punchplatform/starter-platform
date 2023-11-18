@@ -74,7 +74,7 @@ spec:
                 type: string
       - id: sink
         kind: sink
-        type: S3
+        type: s3
         engine_settings:
           # watchout this is mandatory if bulk size is > 1
           tick_row_frequency_ms: 1000
