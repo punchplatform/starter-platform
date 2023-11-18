@@ -1,0 +1,31 @@
+---
+apiVersion: scheduler.punchplatform.io/v2
+kind: Plan
+metadata:
+  name: samples-plans-unreliable
+spec:
+  # This basic plan is not reliable. It has no configration to save checkpoints. 
+  kind: BatchApplication
+  interval: 10s
+  dates:
+    from:
+      # The offset expresses a time difference, before of after, 
+      # that will be computed when generating the variable
+      offset: "00h00m"
+      # This is a sample date to indicate the expected format you want. The value itself
+      # are unimportant. This is a facility to avoid writing 'YYYY-MM-DD HH:MM:SS ..'
+      format: "2006-01-02T15:04:05-0700"
+  templateSpec:
+    containers:
+      serviceAccount: admin-user
+      applicationContainer:
+        image: busybox  
+        imagePullPolicy: IfNotPresent
+        command:
+          - "/bin/sh"
+          - "-c"
+        args:
+          - "echo from unreliable plan: current date is $(date +'%Y-%m-%dT%H:%M:%S%z'), from is {{ .from }}"
+    jobSettings:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 60

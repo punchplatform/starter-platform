@@ -2,9 +2,25 @@
 here="$(cd "$(dirname "$0")" && pwd)"
 source ${here}/../INFO
 
+upload_all_yaml() {
+    local directory="$1"
+
+    # Check if the directory exists
+    if [ ! -d "$directory" ]; then
+        echo "Error: Directory $directory not found."
+        exit 1
+    fi
+    # Iterate over all YAML files in the directory
+    for file_path in $(find ${directory} -name '*.yaml') 
+    do
+        if [ -f "$file_path" ]; then
+            upload_yaml "$file_path"
+        fi
+    done
+}
+
 upload_yaml() {
     local file_path="$1"
-    local endpoint="$2"
 
     # Check if the file exists
     if [ ! -f "$file_path" ]; then
@@ -14,18 +30,14 @@ upload_yaml() {
 
     # Extract the file name from the path
     local file_name=$(basename "$file_path")
+    # derive endpoint from path
+    local endpoint=$(dirname "${file_path#${here}/../conf}") 
 
     # Perform the curl command to upload the file
-    curl -X POST -F file="@$file_path" "${ARTIFACT_SERVER_URL}/$endpoint/$file_name"
+    curl -X POST -F file="@$file_path" "${ARTIFACT_SERVER_URL}/v1/configuration$endpoint/$file_name"
     echo ""
 }
 
-upload_yaml "${here}/../conf/cyber/ingestion/http.yaml" "v1/configuration/cyber/ingestion"
-upload_yaml "${here}/../conf/cyber/ingestion/http_ingress.yaml" "v1/configuration/cyber/ingestion"
-upload_yaml "${here}/../conf/cyber/ingestion/http_service.yaml" "v1/configuration/cyber/ingestion"
-upload_yaml "${here}/../conf/cyber/indexing/logs.yaml" "v1/configuration/cyber/indexing"
-upload_yaml "${here}/../conf/cyber/indexing/errors.yaml" "v1/configuration/cyber/indexing"
-upload_yaml "${here}/../conf/cyber/processing/parsing.yaml" "v1/configuration/cyber/processing"
-upload_yaml "${here}/../conf/cyber/simulator/logs.yaml" "v1/configuration/cyber/simulator"
-upload_yaml "${here}/../conf/fligths/aggregation.yaml" "v1/configuration/flights"
+upload_all_yaml "${here}/../conf/cyber"
+#upload_all_yaml "${here}/../conf/flights"
 

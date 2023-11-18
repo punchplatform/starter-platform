@@ -14,14 +14,6 @@ metadata:
 spec:
   kind: BatchPunchline
   interval: 10s
-  # Instead of interval you can use a cron expression
-  checkpointRef:
-    name: processing-aggregation
-    kind: ConfigMap
-  dates:
-    from:
-      offset: "+02h00m"
-      format: "2006-01-02T15:04:05-0700"
   templateSpec:
     containers:
       serviceAccount: admin-user
@@ -56,11 +48,6 @@ spec:
                     "bool": {
                         "must": [
                             {
-                                "match": {
-                                    "log.syslog.hostname": "server1.board.com"
-                                }
-                            },
-                            {
                                 "range": {
                                     "@timestamp": {
                                         "gte": "now-10m/m",
@@ -88,7 +75,7 @@ spec:
         kind: sink
         type: elasticsearch
         settings:
-          show: false
+          show: true
           http_hosts:
             - host: elasticsearch-master.doc-store
               port: 9200

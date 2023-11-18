@@ -1,0 +1,41 @@
+---
+apiVersion: scheduler.punchplatform.io/v2
+kind: Plan
+metadata:
+  name: samples-plans-reliable
+spec:
+  # This basic plan is not reliable. It has no configuration to save
+  # checkpoints. 
+  kind: BatchApplication
+  # Run every 10 seconds
+  interval: 10s
+  checkpointRef:
+    name: samples-plans-reliable
+    kind: ConfigMap
+  # This plan will generate a single variable of type date. 
+  dates:
+    from:
+      # The offset expresses a time difference, before or after, 
+      # that will be computed when generating the variable
+      offset: "00h00m"
+      # This is a sample date to indicate the expected format you want. 
+      # The value itself is unimportant. This is a facility to avoid 
+      # writing 'YYYY-MM-DD HH:MM:SS ..'
+      format: "2006-01-02T15:04:05-0700"
+  templateSpec:
+    containers:
+      serviceAccount: admin-user
+      applicationContainer:
+        image: busybox  
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: JDK_JAVA_OPTIONS
+            value: "-Xms100m -Xmx450m"
+        command:
+          - "/bin/sh"
+          - "-c"
+        args:
+          - "echo from reliable plan: current date is $(date +'%Y-%m-%dT%H:%M:%S%z'), from is {{ .from }}"
+    jobSettings:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 60
