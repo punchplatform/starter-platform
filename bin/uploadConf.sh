@@ -11,8 +11,8 @@ upload_all_yaml() {
         exit 1
     fi
     # Iterate over all YAML files in the directory
-    for file_path in $(find ${directory} -name '*.yaml') 
-    do
+    
+    find "$directory" -name '*.yaml' -print0 | while IFS= read -r -d '' file_path; do
         if [ -f "$file_path" ]; then
             upload_yaml "$file_path"
         fi
@@ -38,6 +38,25 @@ upload_yaml() {
     echo ""
 }
 
-upload_all_yaml "${here}/../conf/cyber"
-#upload_all_yaml "${here}/../conf/flights"
+directory_choice="$1"
+case "$directory_choice" in
+    "cyber")
+        upload_all_yaml "${here}/../conf/cyber"
+        ;;
+    "flights")
+        upload_all_yaml "${here}/../conf/flights"
+        ;;
+    "samples")
+        upload_all_yaml "${here}/../conf/samples"
+        ;;
+    "all")
+        upload_all_yaml "${here}/../conf/cyber"
+        upload_all_yaml "${here}/../conf/flights"
+        upload_all_yaml "${here}/../conf/samples"
+        ;;
+    *)
+        echo "Please choose 'cyber', 'flights', 'samples' or 'all'."
+        exit 1
+        ;;
+esac
 

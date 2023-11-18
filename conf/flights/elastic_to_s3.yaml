@@ -1,0 +1,98 @@
+---
+# This is a plan. Plans are cron-like punch facilities. A plan runs the punchline
+# defined in the templateSpec section. Here the punchline will be executed every 10 seconds.
+# The checkpointRef section is used to store the last execution date of the punchline.
+#
+# The punchline simply reads a sample elasticsearch index and produces a compressed file
+# in minio with all the documents.
+apiVersion: scheduler.punchplatform.io/v2
+kind: Plan
+metadata:
+  name: fligths-elastic-to-s3
+  annotations:
+    prometheus.io/push-gateway: http://artifacts-server.artifacts-server:4245
+spec:
+  kind: BatchPunchline
+  interval: 60s
+  templateSpec:
+    containers:
+      serviceAccount: admin-user
+      resourcesInitContainer:
+        image: ghcr.io/punchplatform/resourcectl:8.1-dev
+        imagePullPolicy: IfNotPresent
+        resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+      applicationContainer:
+        image: ghcr.io/punchplatform/punchline-java:8.1-dev
+        env:
+          - name: JDK_JAVA_OPTIONS
+            value: "-Xms100m -Xmx450m  -Dpunchplatform.every_period_secs=10"
+    dag:
+      - id: input
+        type: elasticsearch
+        kind: source
+        settings:
+          debug: false
+          http_hosts:
+            - host: elasticsearch-master.doc-store
+              port: 9200
+              scheme: http
+          security:
+            ssl:
+            credentials:
+              username: elastic
+              password: elastic
+          index: kibana_sample_data_flights
+          query: >
+              {
+                "query": {
+                    "match_all": {}
+                }
+              }
+          scroll: true
+          scroll_keep_alive: "10m"
+          scroll_size: 1000
+          max_concurrent_shard_requests: 5
+          mode: source
+        out:
+          - id: print
+            table: documents
+            columns:
+              - name: doc_field
+                type: string
+      - id: print
+        kind: function
+        type: punchlet
+        settings:
+          debug: false
+          punchlets:
+            - "{ debug(root);}"
+        out:
+          - id: sink
+            table: documents
+            columns:
+              - name: doc_field
+                type: string
+      - id: sink
+        kind: sink
+        type: S3
+        engine_settings:
+          # watchout this is mandatory if bulk size is > 1
+          tick_row_frequency_ms: 1000
+        settings:
+          # The destination store.
+          destination: http://minio.object-store:9000
+          secret_key: minioadmin
+          access_key: minioadmin
+          # To control the naming layout of your archives.
+          file_prefix_pattern: "flights-%{date}"
+          # The pool lets you organize your saved files using various multi or mono
+          # tenants layouts.
+          bucket: kibana-sample-data-flights
+          # the compression format
+          compression_format : GZIP
+          # optional the column to be used as timestamp indicator
+          #timestamp_column: _ppf_timestamp
+          # the number of rows cont each batch archive file
+          batch_size: 10000
+          # the expiration timeout to flush incomplete batches
+          batch_expiration_timeout: 20s
