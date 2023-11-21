@@ -8,8 +8,8 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
-    #metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
-    #metrics.punchplatform.com/pushIntervalSeconds: '10'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
 spec:
   containers:
     applicationContainer:
@@ -45,7 +45,7 @@ spec:
       kind: function
       type: punchlet
       settings:
-        debug: true
+        debug: false
         punchlets:
           - "{ debug(root); }"
       out:
@@ -65,12 +65,13 @@ spec:
         security:
           credentials:
             username: elastic
-            password: qoZKuibf96*U_r-ILhbW
+            password: 3HCv4SRzPuqnJcCX_F+B
         index:
           type: daily
           prefix: default-raw
         document:
-          json_column: data
+          column_fields:
+            - data
           extra_fields:
             - type: date
               name: ts

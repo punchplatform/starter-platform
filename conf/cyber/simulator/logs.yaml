@@ -22,6 +22,8 @@ spec:
     - id: data
       type: generator_source
       kind: source
+      engine_settings: 
+        throughput: 15
       settings:
         fields:
           - name: src_port
@@ -109,7 +111,6 @@ spec:
             type: random
             min: 0
             max: 5
-        interval: 20
         messages_size: -1
         messages:
           - '<%{priority}> %{syslog_timestamp} %{server}.%{domain} %{src_ip}:%{src_port} [12/Jul/2021:05:54:55.077] myproxy http_back/back3 %{time}/%{time2}/%{time3}/%{bad_time4}/%{bad_time5} 200 %{bytes} - - ---- 5/2/2/5/%{time} %{queue}/%{queue} "%{uri}"'
