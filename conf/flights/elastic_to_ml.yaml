@@ -1,0 +1,48 @@
+---
+apiVersion: scheduler.punchplatform.io/v2
+kind: Plan
+metadata:
+  name: plan-python
+  labels:
+    app: pyline
+  annotations:
+    prometheus.io/push-gateway: http://artifacts-server.artifacts-server:4245
+
+spec:
+  kind: BatchPunchline
+  interval: 60s
+  templateSpec:
+    containers:
+      serviceAccount: admin-user
+      resourcesInitContainer:
+        image: ghcr.io/punchplatform/resourcectl:8.1-dev
+        imagePullPolicy: IfNotPresent
+        resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+      applicationContainer:
+        image: ghcr.io/punchplatform/punchline-python:8.1-dev
+    jobSettings:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 180
+    dag:
+      - id: input
+        type: elasticsearch
+        kind: source
+        settings:
+          http_hosts:
+            - host: elasticsearch-master.doc-store
+              port: 9200
+          index: kibana_sample_data_flights
+          security:
+            credentials: 
+              username: "elastic"
+              password: "elastic"
+          output_pandas: False
+        out:
+          - id: show
+            table: flights
+
+      - id: show
+        kind: sink
+        type: show
+        settings:
+          title: "Showing the node result"
