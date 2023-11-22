@@ -49,13 +49,17 @@ case "$directory_choice" in
     "samples")
         upload_all_yaml "${here}/../conf/samples"
         ;;
+    "wine")
+        upload_all_yaml "${here}/../conf/wine"
+        ;;
     "all")
         upload_all_yaml "${here}/../conf/cyber"
         upload_all_yaml "${here}/../conf/flights"
         upload_all_yaml "${here}/../conf/samples"
+        upload_all_yaml "${here}/../conf/wine"
         ;;
     *)
-        echo "Please choose 'cyber', 'flights', 'samples' or 'all'."
+        echo "Please choose 'cyber', 'flights', 'samples','wine'  or 'all'."
         exit 1
         ;;
 esac
