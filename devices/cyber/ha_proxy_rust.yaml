@@ -15,7 +15,7 @@ metadata:
     metrics.punchplatform.com/pushIntervalSeconds: '10'
 spec:
   dependencies: 
-    - punch-parsers:com.github.punchplatform:starter-parsers:3.0.0
+    - wasm:com.github.punchplatform:detection:3.0.0
   containers:
     applicationContainer:
       image: ghcr.io/punchplatform/rline:0.1-dev
