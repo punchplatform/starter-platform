@@ -1,0 +1,27 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: BatchApplication
+metadata:
+  name: starter-sigma-rules-1-0-0
+  creationTimestamp: null
+  labels:
+    board.punch.io/platform: dev
+spec:
+  containers:
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+    applicationContainer:
+      image: ghcr.io/punchplatform/punch-converter:8.1-dev
+      args:
+        - --engine
+        - rust
+        - --artifact
+        - /usr/share/punch/artifacts/com/github/punchplatform/starter-sigma-rules/1.0.0/starter-sigma-rules-1.0.0.zip
+        - --rules
+        - rules/apache/apache_failed_login.yml
+  jobSettings:
+    backoffLimit: 6
+    ttlSecondsAfterFinished: 60
+  dependencies:
+    - punch-sigma-rules:com.github.punchplatform:starter-sigma-rules:1.0.0

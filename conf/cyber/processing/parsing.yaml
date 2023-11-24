@@ -21,10 +21,7 @@ spec:
       image: ghcr.io/punchplatform/resourcectl:8.1-dev
       resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
   dependencies:
-    - punch-parsers:com.thalesgroup.punchplatform:core:3.0.8
-    - punch-parsers:com.thalesgroup.punchplatform:haproxy:2.0.0
-    - punch-parsers:com.thalesgroup.punchplatform:stormshield:3.1.0
-    - punch-parsers:com.github.punchplatform:microsoft:2.0.0
+    - punch-parsers:com.github.punchplatform:starter-parsers:3.0.0
   dag:
     - id: input
       kind: source
@@ -56,7 +53,7 @@ spec:
           # haproxy
           - resources:
               - name: ecs_groks
-                url: core/groks
+                url: groks
                 type: file
                 format: grok2
               - name: ecs_v1
@@ -66,37 +63,20 @@ spec:
             punchlets:
               - "{ [event][original] = root; }"
               - "{ [data_processing][unparsed_data] = [event][original]; }"
-              - core/parsing_syslog_ecs.punch
+              - core/syslog.punch
               - haproxy/parser.punch
               - "{ table:[haproxy] = row; }"
-          # stormshield
+          # apache
           - resources:
-              - name: ecs_groks
-                url: core/groks
-                type: file
-                format: grok2
-            punchlets:
-              - "{ [event][original] = root; }"
-              - "{ [data_processing][unparsed_data] = [event][original]; }"
-              - core/parsing_syslog_ecs.punch
-              - main/punchlang/network_security/parser.punch
-              - "{ table:[stormshield] = row; }"
-          # microsoft
-          - resources:
-              - name: ecs_groks
-                url: core/groks
-                type: file
-                format: grok2
-              - name: win_log_event
-                url: main/punchlang/snare/resources/win_log_event.json
-                type: file
+              - name: http_codes
                 format: json
+                type: file
+                url: apache/http_codes.json
             punchlets:
               - "{ [event][original] = root; }"
               - "{ [data_processing][unparsed_data] = [event][original]; }"
-              - main/punchlang/snare/win_log_event_parser.punch
-              - main/punchlang/snare/win_log_event_mapper.punch
-              - "{ table:[microsoft] = row; }"
+              - apache/parser.punch
+              - "{ table:[apache] = row; }"
       out:
         - id: kafka_errors
           table: _ppf_errors
@@ -115,18 +95,7 @@ spec:
             - name: _ppf_local_host
               type: string
         - id: enrich
-          table: microsoft
-          columns:
-            - name: data
-              type: string
-            - name: _ppf_id
-              type: string
-            - name: _ppf_local_port
-              type: int
-            - name: _ppf_local_host
-              type: string
-        - id: enrich
-          table: stormshield
+          table: apache
           columns:
             - name: data
               type: string
@@ -156,19 +125,8 @@ spec:
               type: int
             - name: _ppf_local_host
               type: string
-        - id: kafka_microsoft
-          table: microsoft
-          columns:
-            - name: data
-              type: string
-            - name: _ppf_id
-              type: string
-            - name: _ppf_local_port
-              type: int
-            - name: _ppf_local_host
-              type: string
-        - id: kafka_stormshield
-          table: stormshield
+        - id: kafka_apache
+          table: apache
           columns:
             - name: data
               type: string
@@ -192,23 +150,14 @@ spec:
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: default-haproxy
         format: json
-    - id: kafka_microsoft
+    - id: kafka_apache
       kind: sink
       type: kafka
       settings:
         show: false
         show_max_length: 128
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
-        topic: default-microsoft
-        format: json
-    - id: kafka_stormshield
-      kind: sink
-      type: kafka
-      settings:
-        show: false
-        show_max_length: 128
-        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
-        topic: default-stormshield
+        topic: default-apache
         format: json
     - id: kafka_errors
       kind: sink

@@ -29,7 +29,7 @@ spec:
         debug: false
         start_offset_strategy: latest
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
-        topics: default-haproxy,default-stormshield,default-microsoft
+        topics: default-haproxy,default-apache
         value.format: json
       out:
         - id: elastic
@@ -45,7 +45,7 @@ spec:
       kind: sink
       type: elasticsearch
       settings:
-        show: false
+        show: true
         http_hosts:
           - host: elasticsearch-master.doc-store
             port: 9200
@@ -58,8 +58,7 @@ spec:
           prefix_column: _ppf_topic
           whitelist:
           - default-haproxy
-          - default-microsoft
-          - default-stormshield
+          - default-apache
         document:
           json_column: data
           id_column: _ppf_id

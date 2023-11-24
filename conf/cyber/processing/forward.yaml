@@ -2,9 +2,9 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: cyber-processing-raw
+  name: cyber-processing-forward
   labels:
-    app: cyber-processing-raw
+    app: cyber-processing-forward
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
@@ -49,29 +49,25 @@ spec:
         punchlets:
           - "{ debug(root); }"
       out:
-        - id: elastic
+        - id: forward
           table: logs
           columns:
             - name: data
               type: string
-    - id: elastic
+    - id: forward
       kind: sink
-      type: elasticsearch
+      type: http
+      engine_settings:
+        tick_row_frequency_ms: 1000
       settings:
-        show: true
-        http_hosts:
-          - host: elasticsearch-master.doc-store
-            port: 9200
-        security:
-          credentials:
-            username: elastic
-            password: 3HCv4SRzPuqnJcCX_F+B
-        index:
-          type: daily
-          prefix: default-raw
-        document:
-          column_fields:
-            - data
-          extra_fields:
-            - type: date
-              name: ts
+        # Activating debug will print useful information, without skipping the sending of the data.
+        debug: false
+        # Activating show make the sink pretty print the data, but skips the sending.
+        show: false
+        # The punch encoding format make HTTP body contains the table, row schemas together with the
+        # encoded rows.
+        encoding_codec: punch
+        best_effort: false
+        bulk_size: 1000
+        bulk_interval: 1000
+        url: https://punch.free.beeceptor.com:9095/

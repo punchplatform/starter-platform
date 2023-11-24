@@ -12,7 +12,7 @@ upload_all_yaml() {
     fi
     # Iterate over all YAML files in the directory
     
-    find "$directory" -name '*.yaml' -print0 | while IFS= read -r -d '' file_path; do
+    find "$directory" \( -name '*.yaml' -o -name '*.md' \) -print0 | while IFS= read -r -d '' file_path; do
         if [ -f "$file_path" ]; then
             upload_yaml "$file_path"
         fi
