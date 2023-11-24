@@ -1,0 +1,72 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name:  cyber-detection-logs
+    #annotations:
+    #artifacts.punchplatform.com/url : "http://artifacts-server.artifacts-server:4245"
+  #artifacts.punchplatform.com/refreshIntervalSeconds : "5"
+  labels:
+    app: cyber-detection-logs
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/rline:0.1-dev
+      imagePullPolicy: IfNotPresent
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dependencies:
+    - wasm:com.github.punchplatform:starter-sigma-rules-wasm-compiled:0.0.0
+  dag:
+    - id: kafka
+      kind: source
+      type: kafka
+      settings:
+        bootstrap.server: kooker-kafka-kafka-brokers.processing:9092
+        topics:
+          - default-apache
+        encoding:
+          codec: json
+
+      out:
+        - id: detection
+          table: logs
+          columns:
+            - name: _ppf_topic
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: data
+              type: string
+
+    - id: detection
+      kind: function
+      type: wasm
+      settings:
+        path: "com.github.punchplatform:starter-sigma-rules-wasm-compiled:0.0.0:starter_sigma_rules_wasm_compiled.wasm"
+        function: sigma_detection
+        reload: true
+        # Default serialization format
+      out:
+        - id: kafka-sink
+          table: logs
+          columns:
+            - name: _ppf_topic
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: alerts
+              type: string
+
+    - id: kafka-sink
+      type: kafka
+      kind: sink
+      settings:
+        topic: default-alerts
+        bootstrap.server: kooker-kafka-kafka-brokers.processing:9092
+        encoding:
+          codec: json
+        producer.acks: all
+        producer.batch.size: 16384
+        producer.linger.ms: 5
