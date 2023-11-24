@@ -22,8 +22,6 @@ spec:
         access_key: minioadmin
         secret_key: minioadmin
         bucket: "data"
-        additional_columns:
-          - blabla
         output_pandas: True
       out:
         - id: predictor

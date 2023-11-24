@@ -1,0 +1,75 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: SparkPunchline
+metadata:
+  name: wine-quality-pyspark
+spec:
+  containers:
+    serviceAccount: admin-user
+    applicationContainer:
+        image: ghcr.io/punchplatform/punchline-pyspark:8.1.8
+        imagePullPolicy: IfNotPresent
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dependencies:
+  - "model:io.model:wine:1.0"
+  engineSettings:
+      spark.app.name: wine-quality-pyspark
+      spark.kubernetes.authenticate.driver.serviceAccountName: admin-user
+      spark.kubernetes.container.image.pullPolicy: IfNotPresent
+      spark.sql.execution.arrow.pyspark.enabled: "true"
+      spark.executorEnv.ARROW_PRE_0_15_IPC_FORMAT: "1"
+      spark.kubernetes.driverEnv.MLFLOW_S3_ENDPOINT_URL: http://minio.object-store:9000
+      spark.kubernetes.driverEnv.AWS_ACCESS_KEY_ID: minioadmin
+      spark.kubernetes.driverEnv.AWS_SECRET_ACCESS_KEY: minioadmin
+      spark.hadoop.fs.s3a.path.style.access: true
+      spark.hadoop.fs.s3a.aws.credentials.provider: org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider
+      spark.executor.memory: "2g"
+      spark.driver.memory: "2g"
+      spark.executor.instances: "1"
+      spark.executor.cores: "2"
+  dag:
+    - id: input
+      kind: source
+      type: file
+      settings:
+        path: s3a://data/winequality-red.csv 
+        options:
+          inferSchema: true
+          header: true
+      out:
+        - id: show
+          table: data
+
+    # - id: sql_processing
+    #   kind: function
+    #   type: sql
+    #   settings:
+    #     # udfs:
+
+    #     #   - name: prediction
+    #     #     provider_name: callisto.udfs.prediction.load_model
+
+    #     statements:
+        
+    #     # Cached RAW DATA
+    #     - statement: SELECT * FROM input_data
+    #       output_table_name: input
+
+    #     # Apply prediction
+    #     # - statement: >
+    #     #     SELECT labelId, prediction(std_rolling_lat, std_rolling_lon, mean_cepkm, hav_speed_abs, hav_speed_std, std_azimuth, is_ocean, std_lat, std_lon, ind_freq) as prediction
+    #     #     FROM prediction
+    #     #   output_table_name: prediction
+
+    #   out:
+    #     - id: show
+    #       table: input
+
+              
+    - id: show
+      kind: sink
+      type: show
+      settings:
+        show_schema: true
