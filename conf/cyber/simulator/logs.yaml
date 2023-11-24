@@ -19,7 +19,30 @@ spec:
       image: ghcr.io/punchplatform/resourcectl:8.1-dev
       resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
   dag:
-    - id: data
+    - id: wrong
+      type: generator_source
+      kind: source
+      engine_settings: 
+        throughput: 2
+      settings:
+        messages_size: -1
+        messages:
+          - "apparently not an expected log"
+      out:
+        - id: logs
+          table: logs
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_host
+              type: string
+            - name: _ppf_timestamp
+              type: long
+            - name: _ppf_local_port
+              type: int
+    - id: correct
       type: generator_source
       kind: source
       engine_settings: 
@@ -113,7 +136,8 @@ spec:
             max: 5
         messages_size: -1
         messages:
-          - '<%{priority}> %{syslog_timestamp} %{server}.%{domain} %{src_ip}:%{src_port} [12/Jul/2021:05:54:55.077] myproxy http_back/back3 %{time}/%{time2}/%{time3}/%{bad_time4}/%{bad_time5} 200 %{bytes} - - ---- 5/2/2/5/%{time} %{queue}/%{queue} "%{uri}"'
+          - "<14> Nov 23 10:35:12 loadbalancer1.example.com haproxy: %{src_ip}:%{src_port} [23/Nov/2023:10:35:12.789] myproxy http_back/back1 42/101/2/3985/8542 200 23456 - - ---- 6/5/3/6/42 4/4 \"GET /app/resource1\" HTTP/1.0"
+          - "<14> Nov 23 10:30:45 %{server}.%{domain} apache: %{src_ip} - - [23/Nov/2023:10:30:45 +0000] \"GET /index.html HTTP/1.1\" 200 1234"
       out:
         - id: logs
           table: logs

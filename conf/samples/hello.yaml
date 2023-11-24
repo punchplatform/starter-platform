@@ -1,0 +1,31 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: BatchApplication
+metadata:
+  name: samples-hello
+spec:
+  containers:
+    serviceAccount: admin-user
+    applicationContainer:
+      imagePullPolicy: IfNotPresent
+      image: busybox  
+      env:
+      - name: JDK_JAVA_OPTIONS
+        value: "-Xms100m -Xmx450m"
+      command:
+      - "/bin/sh"
+      - "-c"
+      args:
+      - "cat /userconf/file.yaml"
+      configMapMounts:
+        - name: myapp
+          mountPath: /userconf/
+          content:
+            file.yaml: |
+              # this content will be mounted on
+              # the pod container local filesystem at
+              # /userconf/file.yaml
+              Hello world puncher !
+  jobSettings:
+    backoffLimit: 6
+    ttlSecondsAfterFinished: 60
