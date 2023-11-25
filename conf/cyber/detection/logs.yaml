@@ -23,12 +23,11 @@ spec:
       kind: source
       type: kafka
       settings:
-        bootstrap.server: kooker-kafka-kafka-brokers.processing:9092
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topics:
           - default-apache
         encoding:
           codec: json
-
       out:
         - id: detection
           table: logs
@@ -49,7 +48,7 @@ spec:
         reload: true
         # Default serialization format
       out:
-        - id: kafka-sink
+        - id: sink
           table: logs
           columns:
             - name: _ppf_topic
@@ -58,15 +57,12 @@ spec:
               type: string
             - name: alerts
               type: string
-
-    - id: kafka-sink
-      type: kafka
+    - id: sink
+      type: http
       kind: sink
+      engine_settings:
+        tick_row_frequency_ms: 1000
       settings:
-        topic: default-alerts
-        bootstrap.server: kooker-kafka-kafka-brokers.processing:9092
-        encoding:
-          codec: json
-        producer.acks: all
-        producer.batch.size: 16384
-        producer.linger.ms: 5
+        show: true
+        bulk_size: 1000
+        url: http://artifacts-server.artifacts-server:4245/alerting

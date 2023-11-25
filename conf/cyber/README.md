@@ -7,8 +7,8 @@ receives logs from remote devices or remote sites.
 
 This platform requires two companion start packages: 
 
-* (start-parser)[https://github.com/punchplatform/starter-parsers.git] : that provides a single parser package with a syslog, apache and haproxy parsers.
-* start-sigma-rules[https://github.com/punchplatform/starter-sigma-rules.git]: that provides a few sample Sigma rules. 
+* [start-parser](https://github.com/punchplatform/starter-parsers.git): that provides a single parser package with a syslog, apache and haproxy parsers.
+* [start-sigma-rules](https://github.com/punchplatform/starter-sigma-rules.git): that provides a few sample Sigma rules. 
 
 To install the parsers simply execute: 
 
