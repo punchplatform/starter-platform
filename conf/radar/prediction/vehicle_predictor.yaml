@@ -1,0 +1,48 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: BatchPunchline
+metadata:
+  name: vehicle-predictor
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/punchline-python:8.1-dev
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dependencies:
+  - "model:io.model:vehicle-predictor:1.0"
+  dag:
+    - id: input
+      kind: source
+      type: s3
+      settings:
+        endpoint: "http://minio.object-store:9000"
+        sep: ","
+        access_key: minioadmin
+        secret_key: minioadmin
+        bucket: "archives"
+        compression_type: gzip
+        encoding_format: csv
+        guess_from_extensions: false
+        output_pandas: True
+      out:
+        - id: predictor
+          table: data
+
+    - id: predictor
+      kind: function
+      type: mlflow_loader
+      settings:
+        model: io.model:vehicle-predictor:1.0
+        output_column: prediction
+        debug: false
+      out:
+        - id: show
+          table: prediction
+
+    - id: show
+      kind: sink
+      type: show
+      settings:
+        title: "Showing the node result"

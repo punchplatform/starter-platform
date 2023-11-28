@@ -81,13 +81,6 @@ spec:
         topic: locations
         
         columns: ['id', 'lon', 'lat', 'alt', 'frequence', 'is_ocean', 'timestamp']
-          # - id
-          # - lon
-          # - lat
-          # - alt
-          # - frequence
-          # - is_ocean
-          # - timestamp
         # The compression format
         compression_format : GZIP
         encoding: csv

@@ -38,8 +38,12 @@ case "$directory_choice" in
     "wine")
         upload_all_artifacts "${here}/../resources/wine/artifacts"
         ;;
+    "radar")
+        upload_all_artifacts "${here}/../resources/radar/artifacts"
+        ;;
     "all")
         upload_all_artifacts "${here}/../resources/wine/artifacts"
+        upload_all_artifacts "${here}/../resources/radar/artifacts"
         ;;
     *)
         echo "Please choose 'wine', 'radar' or 'all'."

@@ -55,11 +55,15 @@ case "$directory_choice" in
     "wine")
         upload_all_yaml "${here}/../conf/wine"
         ;;
+    "radar")
+        upload_all_yaml "${here}/../conf/radar"
+        ;;
     "all")
         upload_all_yaml "${here}/../conf/cyber"
         upload_all_yaml "${here}/../conf/flights"
         upload_all_yaml "${here}/../conf/samples"
         upload_all_yaml "${here}/../conf/wine"
+        upload_all_yaml "${here}/../conf/radar"
         ;;
     *)
         echo "Please choose 'cyber', 'flights', 'samples','wine'  or 'all'."
