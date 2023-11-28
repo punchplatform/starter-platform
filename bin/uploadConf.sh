@@ -40,6 +40,9 @@ upload_yaml() {
 
 directory_choice="$1"
 case "$directory_choice" in
+    "radar")
+        upload_all_yaml "${here}/../conf/radar"
+        ;;
     "cyber")
         upload_all_yaml "${here}/../conf/cyber"
         ;;

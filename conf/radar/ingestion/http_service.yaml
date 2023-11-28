@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cyber-ingestion-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: httpinput
+      protocol: TCP
+      port: 8070
+      targetPort: 8070
+  selector:
+    app: cyber-ingestion-http

@@ -1,0 +1,177 @@
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: sensor-east
+  annotations:
+    prometheus.io/scrape: 'false'
+    punchplatform.thalesdigital.io/platform: platform
+    devices.punchplatform.com/id: zone-europe-west1-rennes-east
+    devices.punchplatform.com/version: "3.1"
+    devices.punchplatform.com/inactivityTimeout: "30"
+    devices.punchplatform.com/refreshIntervalSeconds: "10"
+    devices.punchplatform.com/vendor: "iot.punchplatform.com"
+    devices.punchplatform.com/adminUrl: "http://artifacts-server.punch:8080/v1/devices/device"
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.punch:8080
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
+spec:
+  containers:
+    applicationContainer:
+      # This image field is required even if outside Kubernetes. It clearly indicates the
+      # binary version of your punchline engine. Here the java 8.1-dev release. 
+      image: ghcr.io/punchplatform/punchline-java:8.1-dev
+      env:
+        - name: JDK_JAVA_OPTIONS
+          value: "-Xms100m -Xmx1g -Dpunchplatform.every_period_secs=10"
+  dag:
+    - id: data
+      type: generator_source
+      kind: source
+      settings:
+        fields:
+          - name: src_port
+            type: random
+            min: 1024
+            max: 32769
+          - name: server
+            type: list
+            content:
+              - server1
+              - server2
+              - server3
+              - server4
+              - server5
+          - name: back
+            type: list
+            content:
+              - back1
+              - back2
+              - back4
+              - back5
+          - name: back1
+            type: list
+            content:
+              - back11
+              - back12
+          - name: http_code
+            type: list
+            content:
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '200'
+              - '404'
+              - '404'
+              - '404'
+              - '301'
+              - '400'
+          - name: domain
+            type: list
+            content:
+              - sail.com
+              - punch.com
+              - board.com
+              - surf.com
+          - name: src_ip
+            type: list
+            content:
+              - 92.149.90.114
+              - 92.149.90.114
+              - 92.149.90.114
+              - 86.199.68.10
+              - 193.57.111.10
+              - 82.120.16.47
+              - 90.32.75.10
+              - 2.2.28.10
+              - 213.190.69.10
+          - name: time
+            type: random
+            min: 0
+            max: 100
+          - name: time2
+            type: random
+            min: 0
+            max: 300
+          - name: time3
+            type: random
+            min: 1
+            max: 10
+          - name: time4
+            type: random
+            min: 100
+            max: 3000
+          - name: time5
+            type: random
+            min: 101
+            max: 3500
+          - name: bad_time2
+            type: random
+            min: 3000
+            max: 30000
+          - name: bad_time3
+            type: random
+            min: 10
+            max: 3000
+          - name: bad_time4
+            type: random
+            min: 3000
+            max: 10000
+          - name: bad_time5
+            type: random
+            min: 3000
+            max: 10000
+          - name: priority
+            type: counter
+            min: 34
+            max: 35
+          - name: syslog_timestamp
+            type: timestamp
+            format: 'MMM dd HH:mm:ss'
+          - name: bytes
+            type: random
+            min: 1000
+            max: 30000
+          - name: queue
+            type: random
+            min: 0
+            max: 5
+        interval: 1000
+        messages_size: -1
+        messages:
+          - "<14> Nov 23 10:35:12 loadbalancer1.example.com haproxy: 192.168.1.200:54321 [23/Nov/2023:10:35:12.789] myproxy http_back/back1 42/101/2/3985/8542 200 23456 - - ---- 6/5/3/6/42 4/4 \"GET /app/resource1\" HTTP/1.0"
+      out:
+        - id: logs_sink
+          table: logs
+          columns:
+            - name: data
+              type: string
+    - id: sink
+      type: http
+      kind: sink
+      engine_settings:
+        tick_row_frequency_ms: 1000
+      settings:
+        # Activating debug will print useful information, without skipping the sending of the data.
+        debug: false
+        # Activating show make the sink pretty print the data, but skips the sending.
+        show: false
+        # The punch encoding format make HTTP body contains the table, row schemas together with the
+        # encoded rows.
+        encoding_codec: punch
+        best_effort: false
+        bulk_size: 1000
+        bulk_interval: 1000
+        url: http://ingestion.punchplatform.com:8070/

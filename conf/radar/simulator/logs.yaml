@@ -1,0 +1,139 @@
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: radar-simulator-locations
+  annotations:
+    prometheus.io/scrape: 'false'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
+  labels:
+    app: radar-simulator-logs
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/punchline-java:8.1-dev
+      env:
+        - name: JDK_JAVA_OPTIONS
+          value: "-Xms100m -Xmx1g -Dpunchplatform.every_period_secs=10"
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dag:
+    - id: simulator
+      type: generator_source
+      kind: source
+      engine_settings: 
+        throughput: 15
+      settings:
+        fields:
+          - name: src_port
+            type: random
+            min: 1024
+            max: 32769
+          - name: server
+            type: list
+            content:
+              - server1
+              - server2
+          - name: back
+            type: list
+            content:
+              - back1
+              - back2
+          - name: back1
+            type: list
+            content:
+              - back11
+              - back12
+          - name: http_code
+            type: list
+            content:
+              - '200'
+              - '404'
+              - '301'
+          - name: domain
+            type: list
+            content:
+              - sail.com
+              - punch.com
+              - board.com
+              - surf.com
+          - name: src_ip
+            type: list
+            content:
+              - 92.149.90.114
+              - 92.149.90.114
+              - 92.149.90.114
+          - name: uri
+            type: list
+            content:
+              - GET /images/KSC-94EC-412-small.gif HTTP/1.0
+          - name: time
+            type: random
+            min: 0
+            max: 100
+          - name: time2
+            type: random
+            min: 0
+            max: 300
+          - name: time3
+            type: random
+            min: 1
+            max: 10
+          - name: time4
+            type: random
+            min: 100
+            max: 3000
+          - name: time5
+            type: random
+            min: 101
+            max: 3500
+          - name: bad_time4
+            type: random
+            min: 3000
+            max: 10000
+          - name: bad_time5
+            type: random
+            min: 3000
+            max: 10000
+          - name: priority
+            type: counter
+            min: 34
+            max: 35
+          - name: syslog_timestamp
+            type: timestamp
+            format: 'MMM dd HH:mm:ss'
+          - name: bytes
+            type: random
+            min: 1000
+            max: 30000
+          - name: queue
+            type: random
+            min: 0
+            max: 5
+        messages_size: -1
+        messages:
+          - "<14> Nov 23 10:35:12 loadbalancer1.example.com haproxy: %{src_ip}:%{src_port} [23/Nov/2023:10:35:12.789] myproxy http_back/back1 42/101/2/3985/8542 200 23456 - - ---- 6/5/3/6/42 4/4 \"GET /app/resource1\" HTTP/1.0"
+          - "<14> Nov 23 10:30:45 %{server}.%{domain} apache: %{src_ip} - - [23/Nov/2023:10:30:45 +0000] \"GET /index.html HTTP/1.1\" 200 1234"
+      out:
+        - id: sink
+          table: locations
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_host
+              type: string
+            - name: _ppf_timestamp
+              type: long
+            - name: _ppf_local_port
+              type: int
+    - id: sink
+      kind: sink
+      type: kafka
+      settings:
+        show: false
+        debug: false
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topic: locations-input

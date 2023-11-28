@@ -1,0 +1,67 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: radar-indexing-logs
+  labels:
+    app: radar-indexing-logs
+  annotations:
+    prometheus.io/scrape: 'false'
+    prometheus.io/port: '0'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
+
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/punchline-java:8.1-dev
+      env:
+        - name: JDK_JAVA_OPTIONS
+          value: "-Xms100m -Xmx512m -Dpunchplatform.every_period_secs=10"
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dag:
+    - id: input
+      kind: source
+      type: kafka
+      settings:
+        debug: false
+        start_offset_strategy: latest
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topics: locations-input
+        value.format: json
+      out:
+        - id: elastic
+          table: logs
+          columns:
+            - name: data  
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_topic
+              type: string
+    - id: elastic
+      kind: sink
+      type: elasticsearch
+      settings:
+        show: true
+        http_hosts:
+          - host: elasticsearch-master.doc-store
+            port: 9200
+        security:
+          credentials:
+            username: elastic
+            password: qoZKuibf96*U_r-ILhbW
+        index:
+          type: daily
+          prefix_column: _ppf_topic
+          whitelist:
+          - default-haproxy
+          - default-apache
+        document:
+          json_column: data
+          id_column: _ppf_id
+          extra_fields:
+            - type: date
+              name: ts
