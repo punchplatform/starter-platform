@@ -72,10 +72,10 @@ spec:
         secret_key: minioadmin
         # To control the naming layout of your archives.
         # See detailed explanations below.
-        file_prefix_pattern: "%{topic}/locations-%{date:dd}"
+        file_prefix_pattern: "%{topic}/locations-%{date:hh}.%{date:mm}"
         
         # The pool is the top level folder.
-        pool: archives3
+        pool: archives
         
         # The topic is a second level folder.
         topic: locations
