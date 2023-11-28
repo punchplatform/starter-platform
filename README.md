@@ -29,7 +29,7 @@ You may need (on Macos) to expose the correspondng ingress HTTP service to your 
 Once your Kooker is up and running, use a port forwarding: 
 
 ```sh
-kubectl port-forward service/compact-ingestion-http-service 8090:8090
+kubectl port-forward service/ingestion-http-service 8090:8090
 ```
 
 You can then start the various punchlines in the 'cyber/devices' folder. Each simulates a log agent.
