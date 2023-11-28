@@ -22,8 +22,8 @@ spec:
       kind: source
       type: kafka
       load_control:
-        throughput: 100000
-        max_pending_row_number: 10000
+        throughput: 10000
+        max_pending_row_number: 1000
         row_timeout_secs: 0
       settings:
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
@@ -34,16 +34,29 @@ spec:
       - id: sink
         table: locations
         columns:
-        - name: data
+        - name: id
           type: string
-        # The archive sink requires you to include the partition id column
-        - name: _ppf_partition_id
-          type: long
-        # as well as read record offset. 
-        - name: _ppf_partition_offset
-          type: long
-        - name: _ppf_id      
+        - name: lon
           type: string
+        - name: lat
+          type: string
+        - name: alt
+          type: string
+        - name: frequence
+          type: string
+        - name: is_ocean
+          type: string
+        - name: timestamp
+          type: string
+        # # The archive sink requires you to include the partition id column
+        # - name: _ppf_partition_id
+        #   type: long
+        # # as well as read record offset. 
+        # - name: _ppf_partition_offset
+        #   type: long
+        # - name: _ppf_id      
+        #   type: string
+
     - id: sink
       kind: sink
       type: archive
@@ -54,30 +67,34 @@ spec:
         # See below for more explanations.
         strategy: at_least_once
         # The destination store. File, S3, and ceph destinations re supported.
-        destination: http://localhost:9000/
+        destination: 'http://minio.object-store:9000'
         access_key: minioadmin
         secret_key: minioadmin
         # To control the naming layout of your archives.
         # See detailed explanations below.
-        file_prefix_pattern: "%{topic}/%{partition}/%{date}"
+        file_prefix_pattern: "%{topic}/locations-%{date:dd}"
         
         # The pool is the top level folder.
-        pool: archives
+        pool: archives3
         
         # The topic is a second level folder.
-        topic: raw_logs
+        topic: locations
         
         # The compression format
         compression_format : GZIP
+        encoding: csv
+        add_header: true
+        separator: ","
         
+        create_root: true
         # The column to be used as a timestamp indicator
-        timestamp_column: _ppf_timestamp
+        timestamp_column: timestamp
         
         # The number of rows cont each batch archive file
-        batch_size: 100000
+        batch_size: 1000
         
         # The expiration timeout to flush incomplete batches
-        batch_expiration_timeout: 10s
+        batch_expiration_timeout: 5s
     
     
             
