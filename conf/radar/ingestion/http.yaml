@@ -2,9 +2,9 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: radar-ingestion-http
+  name: locations-ingestion-http
   labels:
-    app: radar-ingestion-http
+    app: locations-ingestion-http
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
@@ -29,22 +29,22 @@ spec:
         url: "http://0.0.0.0:8070"
       out:
         - id: sink
-          # This table and column is explicit. It means that devices or external data providers
-          # must send JSON data that have either an array of JSON data with the 'data' field
-          # or a complete body that includes the JSON schema with table 'logs' and colums 'data'.
-          #
-          # The extra _ppf_xxx columns will be added automatically if missing from the received 
-          # body. 
-          table: logs
+          table: locations
           columns:
-            - name: data
-              type: string
-            - name: _ppf_id
-              type: string
-            - name: _ppf_local_port
-              type: int
-            - name: _ppf_local_host
-              type: string
+          - name: id
+            type: string
+          - name: lon
+            type: string
+          - name: lat
+            type: string
+          - name: alt
+            type: string
+          - name: frequence
+            type: string
+          - name: is_ocean
+            type: string
+          - name: timestamp
+            type: string  
     # The records are inserted into Kafka. The table name (here logs) is not
     # part of the encoding data. Only the columns name and values.
     # In the following configuration rows are encoded using a binary key value
