@@ -23,7 +23,7 @@ spec:
       type: generator_source
       kind: source
       engine_settings: 
-        throughput: 100
+        throughput: 30
       settings:
         messages_size: -1
         fields:

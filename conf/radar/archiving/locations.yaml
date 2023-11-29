@@ -95,7 +95,7 @@ spec:
         batch_size: 1000
         
         # The expiration timeout to flush incomplete batches
-        batch_expiration_timeout: 5s
+        batch_expiration_timeout: 10s
     
     
             
