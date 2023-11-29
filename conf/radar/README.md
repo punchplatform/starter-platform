@@ -1,26 +1,11 @@
-# Cyber Sample platform
+# Radar Sample platform
 
-This platform illustrates a typical log management central platform that
-receives logs from remote devices or remote sites. 
+The Radar Sample Platform is designed to demonstrate a typical AI use case involving the processing of radar location events. The platform ingests simulated radar data and makes predictions about the types of vehicles detected. This project is ideal for understanding how AI can be applied in real-time data processing and analysis in the context of vehicle detection and classification. 
 
 ## Before to start
 
-This platform requires two companion start packages: 
-
-* [start-parser](https://github.com/punchplatform/starter-parsers.git): that provides a single parser package with a syslog, apache and haproxy parsers.
-* [start-sigma-rules](https://github.com/punchplatform/starter-sigma-rules.git): that provides a few sample Sigma rules. 
-
-To install the parsers simply execute: 
+This platform requires a model artifacts, to install the model simply execute:
 
 ```sh
-git clone https://github.com/punchplatform/starter-parsers.git
-cd starter-parsers
-make upload
-```
-
-To install the sigma rules :
-```sh
-git clone https://github.com/punchplatform/starter-sigma-rules.git
-cd starter-parsers
-make upload
+./bin.uploadArtifacts.sh radar
 ```
