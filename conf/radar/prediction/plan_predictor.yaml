@@ -59,9 +59,33 @@ spec:
         out:
           - id: show
             table: prediction
+          - id: elastic_sink
+            table: prediction
 
       - id: show
         kind: sink
         type: show
         settings:
           title: "Showing the node result"
+
+      - id: elastic_sink
+        kind: sink
+        type: elasticsearch
+        settings:
+          http_hosts:
+            - host: elasticsearch-master.doc-store
+              port: 9200
+              scheme: http 
+          index: 
+            type: daily
+            prefix: radar-prediction-
+          document:
+            column_fields:
+            - lon
+            - lat
+            - alt
+            - frequence
+            - is_ocean
+            - prediction
+            - timestamp
+          bulk_size: 1000
