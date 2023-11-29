@@ -6,23 +6,28 @@ metadata:
   labels:
     app: spark 
   annotations:
-    platform.gitlab.thalesdigital.io/platform: platform
-    prometheus.io/path: "/metrics"
-    prometheus.io/port: "9500"
-    prometheus.io/scrape: "true"
+    prometheus.io/scrape: 'false'
+    prometheus.io/port: '0'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
 
 spec:
   #cron: "0 3 * * *"
   interval: 60s
-  checkpointRef:
-    name: recurrence-continious-checkpoint
-    kind: ConfigMap
+  # checkpointRef:
+  #   name: vehicle-predictor-checkpoint
+  #   kind: ConfigMap
   dates: 
-    j1:
-      offset: "-1h"
-      format: "2006-01-02"  
+    from:
+      offset: "-5m"
+      format: "2006-01-02T15:04:05Z" 
+    to: 
+      offset: "-0m"
+      format: "2006-01-02T15:04:05Z" 
   kind: BatchPunchline
   templateSpec:
+    jobSettings:
+      ttlSecondsAfterFinished: 180
     containers:
       applicationContainer:
         image: ghcr.io/punchplatform/punchline-python:8.1-dev
@@ -40,7 +45,11 @@ spec:
           sep: ","
           access_key: minioadmin
           secret_key: minioadmin
-          bucket: "archives"
+          # read in only files after/before (included) the provided creation date.
+          # Use iso 8601 format like: "2022-05-31T14:40:00Z"
+          from: "{{ .from }}"
+          to: "{{ .to }}"
+          bucket: "archives"  
           compression_type: gzip
           encoding_format: csv
           guess_from_extensions: false
