@@ -4,7 +4,7 @@ kind: StreamPunchline
 metadata:
   name:  cyber-detection-logs
     #annotations:
-    #artifacts.punchplatform.com/url : "http://artifacts-server.artifacts-server:4245"
+  #artifacts.punchplatform.com/url : "http://artifacts-server.artifacts-server:4245"
   #artifacts.punchplatform.com/refreshIntervalSeconds : "5"
   labels:
     app: cyber-detection-logs
@@ -63,6 +63,9 @@ spec:
       engine_settings:
         tick_row_frequency_ms: 1000
       settings:
-        show: true
+        show: false
+        encoding:
+          codec: json
+        compression: false
         bulk_size: 1000
-        url: http://artifacts-server.artifacts-server:4245/alerting
+        url: http://artifacts-server.artifacts-server:4245/v1/alerts
