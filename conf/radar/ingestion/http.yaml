@@ -45,7 +45,7 @@ spec:
             type: string
           - name: timestamp
             type: string  
-    # The records are inserted into Kafka. The table name (here logs) is not
+    # The records are inserted into Kafka. The table name (here locations) is not
     # part of the encoding data. Only the columns name and values.
     # In the following configuration rows are encoded using a binary key value
     # format for efficiency. Punch also supports JSON or AVRO encoding.
@@ -54,7 +54,6 @@ spec:
       type: kafka
       settings:
         show: false
-        show_max_length: 80
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: locations-input
     

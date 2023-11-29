@@ -30,6 +30,7 @@ upload_devices() {
     punchline_data=$(yq eval -o=json '. ' $file_path)
     json_data='{"punchline": '${punchline_data}'}'
     echo "$json_data" | curl -X POST -H 'Content-Type: application/json' -d @- ${ARTIFACT_SERVER_URL}/v1/devices/device
+    echo ""
 }
 
 
