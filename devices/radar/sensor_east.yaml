@@ -26,137 +26,70 @@ spec:
     - id: data
       type: generator_source
       kind: source
+      engine_settings: 
+        throughput: 30
       settings:
+        messages_size: -1
         fields:
-          - name: src_port
-            type: random
-            min: 1024
-            max: 32769
-          - name: server
-            type: list
-            content:
-              - server1
-              - server2
-              - server3
-              - server4
-              - server5
-          - name: back
-            type: list
-            content:
-              - back1
-              - back2
-              - back4
-              - back5
-          - name: back1
-            type: list
-            content:
-              - back11
-              - back12
-          - name: http_code
-            type: list
-            content:
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '200'
-              - '404'
-              - '404'
-              - '404'
-              - '301'
-              - '400'
-          - name: domain
-            type: list
-            content:
-              - sail.com
-              - punch.com
-              - board.com
-              - surf.com
-          - name: src_ip
-            type: list
-            content:
-              - 92.149.90.114
-              - 92.149.90.114
-              - 92.149.90.114
-              - 86.199.68.10
-              - 193.57.111.10
-              - 82.120.16.47
-              - 90.32.75.10
-              - 2.2.28.10
-              - 213.190.69.10
-          - name: time
+          - name: objectId
             type: random
             min: 0
-            max: 100
-          - name: time2
-            type: random
-            min: 0
-            max: 300
-          - name: time3
-            type: random
-            min: 1
             max: 10
-          - name: time4
+          - name: lon
             type: random
-            min: 100
-            max: 3000
-          - name: time5
+            min: 0
+            max: 180
+          - name: lat
             type: random
-            min: 101
-            max: 3500
-          - name: bad_time2
+            min: 0
+            max: 180
+          - name: alt_avion
             type: random
-            min: 3000
-            max: 30000
-          - name: bad_time3
-            type: random
-            min: 10
-            max: 3000
-          - name: bad_time4
-            type: random
-            min: 3000
-            max: 10000
-          - name: bad_time5
-            type: random
-            min: 3000
-            max: 10000
-          - name: priority
-            type: counter
-            min: 34
-            max: 35
-          - name: syslog_timestamp
-            type: timestamp
-            format: 'MMM dd HH:mm:ss'
-          - name: bytes
+            min: 50
+            max: 12000
+          - name: freq
             type: random
             min: 1000
             max: 30000
-          - name: queue
+          - name: ocean
             type: random
             min: 0
-            max: 5
-        interval: 1000
-        messages_size: -1
-        messages:
-          - "<14> Nov 23 10:35:12 loadbalancer1.example.com haproxy: 192.168.1.200:54321 [23/Nov/2023:10:35:12.789] myproxy http_back/back1 42/101/2/3985/8542 200 23456 - - ---- 6/5/3/6/42 4/4 \"GET /app/resource1\" HTTP/1.0"
+            max: 1
+          - name: timestamp
+            type: timestamp
+            format: 'MMM dd HH:mm:ss'
+        columns:
+          - id: "%{objectId}"
+            lon: "%{lon}"
+            lat: "%{lat}"
+            alt: "%{alt_avion}"
+            frequence: "%{freq}"
+            is_ocean: "%{ocean}"
+            timestamp: "%{timestamp}"
+          - id: "%{objectId}"
+            lon: "%{lon}"
+            lat: "%{lat}"
+            alt: "0"
+            frequence: "%{freq}"
+            is_ocean: "%{ocean}"
+            timestamp: "%{timestamp}"
       out:
-        - id: logs_sink
-          table: logs
+        - id: sink
+          table: locations
           columns:
-            - name: data
+            - name: id
+              type: string
+            - name: lon
+              type: string
+            - name: lat
+              type: string
+            - name: alt
+              type: string
+            - name: frequence
+              type: string
+            - name: is_ocean
+              type: string
+            - name: timestamp
               type: string
     - id: sink
       type: http

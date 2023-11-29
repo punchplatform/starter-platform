@@ -14,6 +14,7 @@ upload_all_yaml() {
     
     find "$directory" \( -name '*.yaml' -o -name '*.md' \) -print0 | while IFS= read -r -d '' file_path; do
         if [ -f "$file_path" ]; then
+            echo "$file_path"
             upload_yaml "$file_path"
         fi
     done
@@ -54,9 +55,6 @@ case "$directory_choice" in
         ;;
     "wine")
         upload_all_yaml "${here}/../conf/wine"
-        ;;
-    "radar")
-        upload_all_yaml "${here}/../conf/radar"
         ;;
     "all")
         upload_all_yaml "${here}/../conf/cyber"

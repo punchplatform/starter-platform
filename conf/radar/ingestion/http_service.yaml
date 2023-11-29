@@ -10,4 +10,4 @@ spec:
       port: 8070
       targetPort: 8070
   selector:
-    app: cyber-ingestion-http
+    app: radar-ingestion-http
