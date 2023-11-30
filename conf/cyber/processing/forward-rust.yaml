@@ -1,0 +1,74 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: cyber-processing-forward-rust
+  labels:
+    app: cyber-processing-forward-rust
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9090'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/rline:0.1-dev
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dependencies:
+    - wasm:com.github.rline:ip-anonymization:0.1.0
+  dag:
+    - id: input
+      kind: source
+      type: kafka
+      settings:
+        debug: true
+        encoding:
+          codec: json
+        bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+        topics:
+          - logs-input
+      out:
+        - id: anonymize
+          table: logs
+          columns:
+            - name: data
+              type: string
+            - name: _ppf_id
+              type: string
+            - name: _ppf_local_port
+              type: int
+            - name: _ppf_local_host
+              type: string
+    - id: anonymize
+      kind: function
+      type: wasm
+      settings:
+        path: "com.github.rline:ip-anonymization:0.1.0:function.wasm"
+        function: anonymize
+        reload: true
+      out:
+        - id: forward
+          table: logs
+          columns:
+            - name: data
+              type: string
+    - id: forward
+      kind: sink
+      type: http
+      engine_settings:
+        tick_row_frequency_ms: 1000
+      settings:
+        # Activating debug will print useful information, without skipping the sending of the data.
+        debug: false
+        # Activating show make the sink pretty print the data, but skips the sending.
+        show: false
+        # The punch encoding format make HTTP body contains the table, row schemas together with the
+        # encoded rows.
+        encoding:
+          codec: json
+        bulk_size: 1000
+        bulk_interval: 1000
+        url: https://punch.free.beeceptor.com:9095/
