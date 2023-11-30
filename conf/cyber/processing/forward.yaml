@@ -26,6 +26,7 @@ spec:
       type: kafka
       settings:
         show: true
+        value.format: json
         start_offset_strategy: latest
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topics: logs-input

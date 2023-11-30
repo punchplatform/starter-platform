@@ -1,0 +1,110 @@
+---
+apiVersion: scheduler.punchplatform.io/v2
+kind: Plan
+metadata:
+  name: plan-recurrence-continious
+  labels:
+    app: spark 
+  annotations:
+    platform.gitlab.thalesdigital.io/platform: platform
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "9500"
+    prometheus.io/scrape: "true"
+
+spec:
+  #cron: "0 3 * * *"
+  interval: 60s
+  checkpointRef:
+    name: recurrence-continious-checkpoint
+    kind: ConfigMap
+  dates: 
+    j1:
+      offset: "-1h"
+      format: "2006-01-02"    
+
+  kind: SparkPunchline #20Sec
+  templateSpec:
+    containers:
+      serviceAccount: admin-user
+      applicationContainer:
+        image: ghcr.io/punchplatform/punchline-pyspark:8.1.8 
+        imagePullPolicy: IfNotPresent
+      resourcesInitContainer:
+        image: ghcr.io/punchplatform/resourcectl:8.1.8
+        resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+    # Dependencies section
+    engineSettings: 
+      spark.app.name: recurrence-continious
+      spark.additional.jar: callisto-spark-java-uc3-1.0.0-jar-with-dependencies.jar
+      spark.additional.pex: callisto-spark-python-uc3-1.0.0.pex
+      spark.sql.execution.arrow.pyspark.enabled: "true"
+      spark.executorEnv.ARROW_PRE_0_15_IPC_FORMAT: "1"
+      spark.executor.memory: "4g"
+      spark.driver.memory: "4g"
+      spark.executor.instances: "1"
+      spark.executor.cores: "4"
+      spark.kubernetes.authenticate.driver.serviceAccountName: admin-user
+      spark.kubernetes.container.image.pullPolicy: IfNotPresent
+      spark.eventLog.logStageExecutorMetrics: "true"
+      spark.rpc.message.maxSize: "1024"
+      spark.hadoop.fs.s3a.access.key: minioadmin
+      spark.hadoop.fs.s3a.secret.key: minioadmin
+      spark.hadoop.fs.s3a.endpoint: http://minio.object-store:9000
+      spark.hadoop.fs.s3a.connection.ssl.enabled: "false"
+      spark.hadoop.fs.s3a.path.style.access: "true"
+      spark.sql.session.timeZone: "UTC"
+    dependencies:
+      - "additional-pex:org.thales.callisto:callisto-spark-python-uc3:1.0.0"
+      - "additional-jar:org.thales.callisto:callisto-spark-java-uc3:1.0.0"
+
+    dag:
+      - id: input
+        kind: source
+        type: file
+        settings:
+          # path: s3a://locations/{{ .j1 }}
+          path: s3a://locations/ 
+          options:
+            inferSchema: true
+            header: true
+        out:
+          - id: processing
+            table: data
+
+      - id: processing
+        kind: function
+        type: sql
+        settings:
+          statements:
+            - statement : > 
+                SELECT labelId, count(cycleId) as n_cycles FROM input_data GROUP BY labelId
+              output_table_name: agg_input
+            - statement : > 
+                SELECT raw.*, agg.n_cycles FROM input_data AS raw LEFT JOIN agg_input as agg ON raw.labelId = agg.labelId 
+              output_table_name: df_emissions_continues  
+            - statement : > 
+                SELECT labelId, cycleId, bandwidthKHz, cycleStart, freqRadioKHz, coord_lat, coord_lon, n_cycles FROM df_emissions_continues WHERE n_cycles > (0.5*24*60*60/4.096)
+              output_table_name: df_emissions_continues
+            - statement: >
+                  SELECT to_json(named_struct(
+                  "labelId", labelId,
+                  "cycleId", cycleId,
+                  "bandwidthKHz", bandwidthKHz,
+                  "cycleStart", cycleStart,
+                  "freqRadioKHz", freqRadioKHz,
+                  "coord", named_struct("lat", coord_lat, "lon", coord_lon),
+                  "n_cycles", n_cycles
+                  )) AS value FROM df_emissions_continues
+              output_table_name: result
+        out:
+          - id: kafka
+            table: result
+
+      - id: kafka
+        kind: sink
+        type: kafka
+        settings:
+          # Brokers to reach
+          kafka.bootstrap.servers: kooker-kafka-kafka-bootstrap.processing:9092
+          # Destination topic
+          topic: result-uc3-continious

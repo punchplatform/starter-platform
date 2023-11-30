@@ -28,9 +28,9 @@ spec:
       settings:
         debug: false
         start_offset_strategy: latest
+        value.format: json
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topics: default-haproxy,default-apache
-        value.format: json
       out:
         - id: elastic
           table: logs

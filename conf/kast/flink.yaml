@@ -1,0 +1,113 @@
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: kast-flink
+  annotations:
+    #prometheus.io/scrape: 'false'
+    #metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    #metrics.punchplatform.com/pushIntervalSeconds: '10'
+  labels:
+    app: kast-flink
+spec:
+  containers:
+    applicationContainer:
+      image: flink-runtime:latest
+      env:
+        - name: JDK_JAVA_OPTIONS
+          value: "-Xms100m -Xmx1g -Dpunchplatform.every_period_secs=10"
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+jobId: 00000000000000000000000000000000
+tables: []
+dag:
+  - id: A
+    type: sim-source
+    schema: |
+      {
+        "type": "record",
+        "name": "record",
+        "fields": [
+          {
+            "name": "streamId",
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": null
+          },
+          {
+            "name": "randomStreamId",
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": null
+          },
+          {
+            "name": "testInt",
+            "type": [
+              "null",
+              "int"
+            ],
+            "default": null
+          },
+          {
+            "name": "testBoolean",
+            "type": [
+              "null",
+              "boolean"
+            ],
+            "default": null
+          },
+          {
+            "name": "genTimestampMs",
+            "type": [
+              "null",
+              "long"
+            ],
+            "default": null
+          },
+          {
+            "name": "timestampMs",
+            "type": [
+              "null",
+              "long"
+            ],
+            "default": null
+          },
+          {
+            "name": "imgPath",
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": null
+          },
+          {
+            "name": "density",
+            "type": [
+              "null",
+              "double"
+            ],
+            "default": null
+          },
+          {
+            "name": "location",
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": null
+          }
+        ]
+      }
+    meta:
+      rows-per-second: 10000
+    out:
+      - B
+  - id: B
+    type: kafka-sink
+    format: json
+    addr: 127.0.0.1:9092
+    topics: TestMdtJson

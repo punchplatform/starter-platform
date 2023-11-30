@@ -14,7 +14,6 @@ upload_all_yaml() {
     
     find "$directory" \( -name '*.yaml' -o -name '*.md' \) -print0 | while IFS= read -r -d '' file_path; do
         if [ -f "$file_path" ]; then
-            echo "$file_path"
             upload_yaml "$file_path"
         fi
     done
@@ -64,7 +63,7 @@ case "$directory_choice" in
         upload_all_yaml "${here}/../conf/radar"
         ;;
     *)
-        echo "Please choose 'cyber', 'flights', 'samples','wine', 'radar'  or 'all'."
+        echo "Please choose among 'all', 'cyber', 'flights', 'samples','wine', 'radar'."
         exit 1
         ;;
 esac

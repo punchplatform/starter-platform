@@ -28,7 +28,7 @@ spec:
       settings:
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topics: logs-input
-        value.format: lumberjack
+        value.format: json
         start_offset_strategy: latest
       out:
       - id: sink
