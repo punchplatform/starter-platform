@@ -2,9 +2,9 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: locations-ingestion-http
+  name: radar-ingestion-http
   labels:
-    app: locations-ingestion-http
+    app: radar-ingestion-http
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'

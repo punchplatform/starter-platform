@@ -23,7 +23,7 @@ spec:
       type: generator_source
       kind: source
       engine_settings: 
-        throughput: 2
+        throughput: 100
       settings:
         messages_size: -1
         messages:
@@ -158,5 +158,6 @@ spec:
       settings:
         show: false
         debug: false
+        format: json
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
         topic: logs-input

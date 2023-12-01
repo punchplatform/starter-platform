@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: locations-ingestion-service
+  name: radar-ingestion-service
 spec:
   type: LoadBalancer
   ports:
@@ -10,4 +10,4 @@ spec:
       port: 8070
       targetPort: 8070
   selector:
-    app: locations-ingestion-http
+    app: radar-ingestion-http

@@ -2,9 +2,9 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: cyber-processing-forward
+  name: cyber-processing-forward-rust
   labels:
-    app: cyber-processing-forward
+    app: cyber-processing-forward-rust
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
@@ -13,25 +13,25 @@ metadata:
 spec:
   containers:
     applicationContainer:
-      image: ghcr.io/punchplatform/punchline-java:8.1-dev
-      env:
-        - name: JDK_JAVA_OPTIONS
-          value: "-Xms100m -Xmx1g -Dpunchplatform.every_period_secs=10"
+      image: ghcr.io/punchplatform/rline:0.1-dev
     resourcesInitContainer:
       image: ghcr.io/punchplatform/resourcectl:8.1-dev
       resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dependencies:
+    - wasm:com.github.rline:ip-anonymization:0.1.0
   dag:
     - id: input
       kind: source
       type: kafka
       settings:
-        show: true
-        value.format: json
-        start_offset_strategy: latest
+        debug: true
+        encoding:
+          codec: json
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
-        topics: logs-input
+        topics:
+          - logs-input
       out:
-        - id: print
+        - id: anonymize
           table: logs
           columns:
             - name: data
@@ -42,13 +42,13 @@ spec:
               type: int
             - name: _ppf_local_host
               type: string
-    - id: print
+    - id: anonymize
       kind: function
-      type: punchlet
+      type: wasm
       settings:
-        debug: false
-        punchlets:
-          - "{ debug(root); }"
+        path: "com.github.rline:ip-anonymization:0.1.0:function.wasm"
+        function: anonymize
+        reload: true
       out:
         - id: forward
           table: logs
@@ -67,8 +67,8 @@ spec:
         show: false
         # The punch encoding format make HTTP body contains the table, row schemas together with the
         # encoded rows.
-        encoding_codec: punch
-        best_effort: false
+        encoding:
+          codec: json
         bulk_size: 1000
         bulk_interval: 1000
         url: https://punch.free.beeceptor.com:9095/
