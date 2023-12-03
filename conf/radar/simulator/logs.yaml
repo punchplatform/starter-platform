@@ -5,7 +5,7 @@ metadata:
   annotations:
     prometheus.io/scrape: 'false'
     metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
-    metrics.punchplatform.com/pushIntervalSeconds: '10'
+    metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
   labels:
     app: radar-simulator-logs
 spec:

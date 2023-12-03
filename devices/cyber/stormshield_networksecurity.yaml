@@ -12,7 +12,7 @@ metadata:
     devices.punchplatform.com/vendor: "iot.punchplatform.com"
     devices.punchplatform.com/adminUrl:  "http://artifacts-server.punch:8080/v1/devices/device"
     metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.punch:8080
-    metrics.punchplatform.com/pushIntervalSeconds: '10'
+    metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
 spec:
   containers:
     applicationContainer:

@@ -9,9 +9,9 @@ It provides simple yet complete and realistic examples for you to start from.
 
 Here are the few files to use: 
 
-* INFO : contains the target punch server url. By default, it points to kooker one.
+* INFO : contains the target punch REST server url. By default, it points to the kooker one.
 * bin/uploadConf.sh : upload the configuration you want to punch configuration server.
-* bin/uploadDevice.sh: uplad the devices information to punch central platform.
+* bin/uploadDevice.sh: upload the devices information to punch central platform. This is not necessary, the device will automatically provision itself once started.
 
 ## Kooker Usage
 
