@@ -3,9 +3,10 @@ apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
   name:  cyber-detection-logs
-    #annotations:
-  #artifacts.punchplatform.com/url : "http://artifacts-server.artifacts-server:4245"
-  #artifacts.punchplatform.com/refreshIntervalSeconds : "5"
+  annotations:
+    prometheus.io/scrape: 'false'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245/metrics/job/cyber-processdetection-log
+    metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
   labels:
     app: cyber-detection-logs
 spec:

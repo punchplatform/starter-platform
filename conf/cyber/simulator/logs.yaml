@@ -5,7 +5,7 @@ metadata:
   annotations:
     prometheus.io/scrape: 'false'
     metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
-    metrics.punchplatform.com/pushIntervalSeconds: '10'
+    metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
   labels:
     app: cyber-simulator-logs
 spec:
@@ -23,7 +23,7 @@ spec:
       type: generator_source
       kind: source
       engine_settings: 
-        throughput: 100
+        throughput: 1
       settings:
         messages_size: -1
         messages:
@@ -46,7 +46,7 @@ spec:
       type: generator_source
       kind: source
       engine_settings: 
-        throughput: 15
+        throughput: 5
       settings:
         fields:
           - name: src_port

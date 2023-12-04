@@ -2,21 +2,21 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: indexing-errors
+  name: cyber-indexing-errors
   labels:
-    app: indexing-errors
+    app: cyber-indexing-errors
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
     metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
-    metrics.punchplatform.com/pushIntervalSeconds: '10'
+    metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
 spec:
   containers:
     applicationContainer:
       image: ghcr.io/punchplatform/punchline-java:8.1-dev
       env:
         - name: JDK_JAVA_OPTIONS
-          value: "-Xms100m -Xmx512m  -Dpunchplatform.every_period_secs=10"
+          value: "-Xms100m -Xmx512m -Dpunchplatform.every_period_secs=10"
   dag:
     - id: input_errors
       kind: source

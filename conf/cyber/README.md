@@ -1,7 +1,14 @@
 # Cyber Sample platform
 
-This platform illustrates a typical log management central platform that
+This configuration illustrates a typical log management central platform that
 receives logs from remote devices or remote sites. 
+
+It demonstrates:
+* log ingesting from eternal HTTP devices
+* log parsing using ECS compliant parsers
+* log archiving into compressed S3 CSV files
+* log forwarding to an external HTTP server: an anonymisation function is deployed as a WASM artifact to ensure no IP is forwarded in clear text
+* alert detection using SIGMA rules and automatically generated WASM functions
 
 ## Before to start
 

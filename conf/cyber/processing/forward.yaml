@@ -8,15 +8,12 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port: '9090'
-    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
-    metrics.punchplatform.com/pushIntervalSeconds: '10'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245/metrics/job/cyber-processing-forward
+    metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
 spec:
   containers:
     applicationContainer:
-      image: ghcr.io/punchplatform/punchline-java:8.1-dev
-      env:
-        - name: JDK_JAVA_OPTIONS
-          value: "-Xms100m -Xmx1g -Dpunchplatform.every_period_secs=10"
+      image: ghcr.io/punchplatform/rline:0.1-dev
     resourcesInitContainer:
       image: ghcr.io/punchplatform/resourcectl:8.1-dev
       resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
@@ -25,13 +22,14 @@ spec:
       kind: source
       type: kafka
       settings:
-        show: true
-        value.format: json
-        start_offset_strategy: latest
+        debug: true
+        encoding:
+          codec: json
         bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
-        topics: logs-input
+        topics:
+          - logs-input
       out:
-        - id: print
+        - id: forward
           table: logs
           columns:
             - name: data
@@ -42,19 +40,6 @@ spec:
               type: int
             - name: _ppf_local_host
               type: string
-    - id: print
-      kind: function
-      type: punchlet
-      settings:
-        debug: false
-        punchlets:
-          - "{ debug(root); }"
-      out:
-        - id: forward
-          table: logs
-          columns:
-            - name: data
-              type: string
     - id: forward
       kind: sink
       type: http
@@ -64,11 +49,11 @@ spec:
         # Activating debug will print useful information, without skipping the sending of the data.
         debug: false
         # Activating show make the sink pretty print the data, but skips the sending.
-        show: false
+        show: true
         # The punch encoding format make HTTP body contains the table, row schemas together with the
         # encoded rows.
-        encoding_codec: punch
-        best_effort: false
+        encoding:
+          codec: json
         bulk_size: 1000
         bulk_interval: 1000
         url: https://punch.free.beeceptor.com:9095/
