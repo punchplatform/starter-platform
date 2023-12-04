@@ -2,7 +2,7 @@
 apiVersion: scheduler.punchplatform.io/v2
 kind: Plan
 metadata:
-  name: vehicle-predictor
+  name: radar-prediction-vehicle
   labels:
     app: spark 
   annotations:
