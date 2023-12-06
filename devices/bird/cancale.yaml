@@ -1,0 +1,160 @@
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: bird-identification-ltr
+  annotations:
+    punchplatform.thalesdigital.io/platform: platform
+    prometheus.io/scrape: 'false'
+    # Periodically send device management information
+    devices.punchplatform.com/id: zone-europe-west1-bird-cancale
+    devices.punchplatform.com/version: "1.7"
+    devices.punchplatform.com/inactivityTimeout: "30000"
+    devices.punchplatform.com/refreshIntervalSeconds: "10"
+    devices.punchplatform.com/vendor: "iot.punchplatform.com"
+    devices.punchplatform.com/adminUrl: "http://artifacts-server.punch:8080/v1/devices/device"
+    # Periodically push metrics
+    metrics.punchplatform.com/pushGatewayUrl: "http://artifacts-server.punch:8080/metrics/job/zone-europe-west1-bird-cancale"
+    metrics.punchplatform.com/pushIntervalSeconds: '10'
+    # Periodically check for updates of artifact dependencies
+    artifacts.punchplatform.com/url: "http://artifacts-server.punch:8080/v1/artifacts"
+    artifacts.punchplatform.com/refreshIntervalSeconds: '10'
+spec:
+  source:
+    geo:
+      location:
+        lat:  48.658658
+        lon: -1.863467
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/rline:0.1-dev
+    resourcesInitContainer:
+      image: ghcr.io/punchplatform/resourcectl:8.1-dev
+      resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dependencies:
+    - wasm:com.github.rline:melspectrogram:latest
+  dag:
+    - id: input
+      kind: source
+      type: file
+      settings:
+        encoding: wav
+        path: "/data/"
+        watcher_interval_s: 5
+      out:
+        - id: enrich
+          table: logs
+          columns:
+            - name: content
+              type: vecFloat
+            - name: path
+              type: string
+            - name: rate
+              type: integer
+            - name: channels
+              type: integer
+            - name: creation_timestamp # Unix timestamp from epoch
+              type: long
+
+    - id: enrich
+      kind: function
+      type: enrich_field
+      settings:
+        fields:
+          latitude : "48.658658"
+          longitude : "-1.863467"
+      out:
+        - id: transform
+          table: logs
+          columns:
+            - name: content
+              type: vecFloat
+            - name: path
+              type: string
+            - name: rate
+              type: integer
+            - name: channels
+              type: integer
+            - name: creation_timestamp
+              type: long
+            - name: latitude
+              type: string
+            - name: longitude
+              type: string
+
+    - id: transform
+      kind: function
+      type: wasm
+      settings:
+        path: "com.github.rline:melspectrogram:latest:melspectrogram.wasm"
+        function: melspectrogram
+        format: json
+        reload: true
+      out:
+        - id: inference
+          table: logs
+          columns:
+            - name: melspectrogram
+              type: vecFloat
+            - name: path
+              type: string
+            - name: rate
+              type: integer
+            - name: channels
+              type: integer
+            - name: creation_timestamp
+              type: long
+            - name: latitude
+              type: string
+            - name: longitude
+              type: string
+         
+    - id: inference
+      kind: function
+      type: tflite
+      settings:
+        labels: 
+          path: "/model/labels.csv"
+          has_headers: true
+          headers:
+            - "specie"
+            - "scientific_name"
+            - "common_name"
+        model: "/model/bird_identification.tflite"
+        input_column: melspectrogram
+        top: 3
+      out:
+        - id: http
+          table: logs
+          columns:
+            - name: specie
+              type: string
+            - name: scientific_name
+              type: string
+            - name: common_name
+              type: string
+            - name: score
+              type: float
+            - name: path
+              type: string
+            - name: predictions
+              type: vecString
+            - name: rate
+              type: integer
+            - name: channels
+              type: integer
+            - name: creation_timestamp
+              type: long
+            - name: latitude
+              type: string
+            - name: longitude
+              type: string
+
+    - id: http
+      type: http
+      kind: sink
+      engine_settings:
+        tick_row_frequency_ms: 2000
+      settings:
+        output_column: log
+        debug: true
+        url: http://bird.punch:8080/

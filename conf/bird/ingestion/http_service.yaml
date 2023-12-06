@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bird-ingestion-service
+  namespace: default
+spec:
+  ports:
+    - port: 8999
+      protocol: TCP
+      targetPort: 8999
+  selector:
+    app: bird-ingestion-http
+  sessionAffinity: None
+  type: ClusterIP

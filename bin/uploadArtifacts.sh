@@ -38,6 +38,9 @@ case "$directory_choice" in
     "wine")
         upload_all_artifacts "${here}/../resources/wine/artifacts"
         ;;
+    "bird")
+        upload_artifact "${here}/../resources/bird/artifacts/artifact_wasm_signal_processing_v1.0.0.zip"
+        ;;
     "radar")
         upload_all_artifacts "${here}/../resources/radar/artifacts"
         ;;

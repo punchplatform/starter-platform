@@ -1,0 +1,55 @@
+apiVersion: punchline.punchplatform.io/v2
+kind: StreamPunchline
+metadata:
+  name: bird-ingestion-http
+spec:
+  containers:
+    applicationContainer:
+      image: ghcr.io/punchplatform/punchline-java:8.1-dev
+  dag:
+    - id: input
+      kind: source
+      type: http
+      settings:
+        debug: true
+        url: http://0.0.0.0:8999
+        ssl: false
+      out:
+        - id: punchlet
+          table: logs
+          columns:
+            - name: log
+              type: string
+            
+
+    - id: punchlet
+      type: punchlet_function
+      kind: function
+      settings:
+        punchlets: 
+        - "{print(root);}"
+      out:
+        - id: elastic
+          table: logs
+          columns:
+            - name: log
+              type: string
+
+    - id: elastic
+      kind: sink
+      type: elasticsearch
+      settings:
+        security:
+          credentials:
+            username: elastic
+            password: elastic
+        document:
+          json_column: "log"
+        http_hosts:
+          - host: elasticsearch-master.doc-store
+            port: 9200
+        index:
+          type: daily
+          prefix: birds-
+    
+    
