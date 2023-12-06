@@ -51,7 +51,7 @@ case "$directory_choice" in
         upload_all_devices "${here}/../devices/radar"
         ;;
     *)
-        echo "Please choose 'cyber', 'radar'  or 'all'."
+        echo "Please choose 'cyber', 'radar', 'bird', or 'all'."
         exit 1
         ;;
 esac

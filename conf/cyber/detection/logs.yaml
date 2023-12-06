@@ -18,7 +18,7 @@ spec:
       image: ghcr.io/punchplatform/resourcectl:8.1-dev
       resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
   dependencies:
-    - wasm:com.github.punchplatform:starter-sigma-rules-wasm-compiled:0.0.0
+    - wasm:com.github.punchplatform:starter-sigma-rules-wasm-compiled:0.0.0-dev
   dag:
     - id: kafka
       kind: source
@@ -44,7 +44,7 @@ spec:
       kind: function
       type: wasm
       settings:
-        path: "com.github.punchplatform:starter-sigma-rules-wasm-compiled:0.0.0:starter_sigma_rules_wasm_compiled.wasm"
+        path: "com.github.punchplatform:starter-sigma-rules-wasm-compiled:0.0.0-dev:starter_sigma_rules_wasm_compiled.wasm"
         function: sigma_detection
         reload: true
         # Default serialization format

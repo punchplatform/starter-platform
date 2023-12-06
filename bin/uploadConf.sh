@@ -67,7 +67,7 @@ case "$directory_choice" in
         upload_all_yaml "${here}/../conf/radar"
         ;;
     *)
-        echo "Please choose among 'all', 'cyber', 'flights', 'samples','wine', 'radar'."
+        echo "Please choose among 'all', 'cyber', 'bird', 'flights', 'samples','wine', 'radar'."
         exit 1
         ;;
 esac
