@@ -22,7 +22,7 @@ spec:
     - id: wrong
       type: generator_source
       kind: source
-      engine_settings: 
+      engine_settings:
         throughput: 1
       settings:
         messages_size: -1
@@ -45,7 +45,7 @@ spec:
     - id: correct
       type: generator_source
       kind: source
-      engine_settings: 
+      engine_settings:
         throughput: 5
       settings:
         fields:
@@ -91,6 +91,9 @@ spec:
             type: list
             content:
               - GET /images/KSC-94EC-412-small.gif HTTP/1.0
+              - GET /admin HTTP/1.0
+              - GET /wp-admin HTTP/1.0
+              - GET /phpmyadmin HTTP/1.0
           - name: time
             type: random
             min: 0
@@ -138,6 +141,7 @@ spec:
         messages:
           - "<14> Nov 23 10:35:12 loadbalancer1.example.com haproxy: %{src_ip}:%{src_port} [23/Nov/2023:10:35:12.789] myproxy http_back/back1 42/101/2/3985/8542 200 23456 - - ---- 6/5/3/6/42 4/4 \"GET /app/resource1\" HTTP/1.0"
           - "<14> Nov 23 10:30:45 %{server}.%{domain} apache: %{src_ip} - - [23/Nov/2023:10:30:45 +0000] \"GET /index.html HTTP/1.1\" 200 1234"
+          - "<14> Nov 23 10:30:45 %{server}.%{domain} apache: %{src_ip} - - [23/Nov/2023:10:30:45 +0000] \"%{uri}\" 200 1234"
       out:
         - id: logs
           table: logs
