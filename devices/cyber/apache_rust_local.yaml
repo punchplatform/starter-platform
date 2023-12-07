@@ -12,8 +12,13 @@ metadata:
     devices.punchplatform.com/vendor: "iot.punchplatform.com"
     devices.punchplatform.com/adminUrl: "http://artifacts-server.punch:8080/v1/devices/device"
     metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.punch:8080
-    metrics.punchplatform.com/pushIntervalSeconds: '10'
+    metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
 spec:
+  source:
+    geo:
+      location:
+        lat:  48.08340902111162
+        lon: -1.6536542982703863
   dependencies: 
     - wasm:com.github.punchplatform:detection:3.0.0
   containers:

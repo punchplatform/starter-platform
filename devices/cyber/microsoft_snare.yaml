@@ -1,11 +1,11 @@
 apiVersion: punchline.punchplatform.io/v2
 kind: StreamPunchline
 metadata:
-  name: snare
+  name: hopital-sevigne
   annotations:
     prometheus.io/scrape: 'false'
     punchplatform.thalesdigital.io/platform: platform
-    devices.punchplatform.com/id: zone-europe-west1-microsoftsnare-s1
+    devices.punchplatform.com/id: zone-europe-west1-hopital-sevigne
     devices.punchplatform.com/version: "3.1"
     devices.punchplatform.com/inactivityTimeout: "30"
     devices.punchplatform.com/refreshIntervalSeconds: "10"
@@ -14,6 +14,11 @@ metadata:
     metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.punch:8080
     metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
 spec:
+  source:
+    geo:
+      location:
+        lat: 48.12957389809394
+        lon: -1.6270817976457972
   containers:
     applicationContainer:
       image: ghcr.io/punchplatform/punchline-java:8.1-dev

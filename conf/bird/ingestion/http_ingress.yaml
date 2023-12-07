@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 5g
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
+  name: bird-ingestion-ingress
+  namespace: default
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: bird.punch
+    http:
+      paths:
+      - backend:
+          service:
+            name: bird-ingestion-service
+            port:
+              number: 8999
+        path: /
+        pathType: ImplementationSpecific

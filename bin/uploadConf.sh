@@ -46,6 +46,9 @@ case "$directory_choice" in
     "cyber")
         upload_all_yaml "${here}/../conf/cyber"
         ;;
+    "bird")
+        upload_all_yaml "${here}/../conf/bird"
+        ;;
     "flights")
         upload_all_yaml "${here}/../conf/flights"
         ;;
@@ -57,13 +60,14 @@ case "$directory_choice" in
         ;;
     "all")
         upload_all_yaml "${here}/../conf/cyber"
+        upload_all_yaml "${here}/../conf/bird"
         upload_all_yaml "${here}/../conf/flights"
         upload_all_yaml "${here}/../conf/samples"
         upload_all_yaml "${here}/../conf/wine"
         upload_all_yaml "${here}/../conf/radar"
         ;;
     *)
-        echo "Please choose among 'all', 'cyber', 'flights', 'samples','wine', 'radar'."
+        echo "Please choose among 'all', 'cyber', 'bird', 'flights', 'samples','wine', 'radar'."
         exit 1
         ;;
 esac

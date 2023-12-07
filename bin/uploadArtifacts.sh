@@ -35,8 +35,14 @@ upload_artifact() {
 
 directory_choice="$1"
 case "$directory_choice" in
+    "cyber")
+        upload_artifact "${here}/../resources/cyber/artifacts/starter-sigma-rules-wasm-compiled-0.0.0-dev-packaged.zip"
+        ;;
     "wine")
         upload_all_artifacts "${here}/../resources/wine/artifacts"
+        ;;
+    "bird")
+        upload_artifact "${here}/../resources/bird/artifacts/artifact_wasm_signal_processing_v1.0.0.zip"
         ;;
     "radar")
         upload_all_artifacts "${here}/../resources/radar/artifacts"
@@ -46,7 +52,7 @@ case "$directory_choice" in
         upload_all_artifacts "${here}/../resources/radar/artifacts"
         ;;
     *)
-        echo "Please choose 'wine', 'radar' or 'all'."
+        echo "Please choose 'cyber', 'wine', 'bird', 'radar' or 'all'."
         exit 1
         ;;
 esac

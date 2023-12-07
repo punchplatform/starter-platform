@@ -17,6 +17,8 @@ spec:
     resourcesInitContainer:
       image: ghcr.io/punchplatform/resourcectl:8.1-dev
       resourcesProviderUrl: http://artifacts-server.artifacts-server:4245
+  dependencies:
+    - wasm:com.github.rline:ip-anonymization:0.1.0
   dag:
     - id: input
       kind: source
@@ -29,7 +31,7 @@ spec:
         topics:
           - logs-input
       out:
-        - id: forward
+        - id: anonymize
           table: logs
           columns:
             - name: data
@@ -39,6 +41,19 @@ spec:
             - name: _ppf_local_port
               type: int
             - name: _ppf_local_host
+              type: string
+    - id: anonymize
+      kind: function
+      type: wasm
+      settings:
+        path: "com.github.rline:ip-anonymization:0.1.0:function.wasm"
+        function: anonymize
+        reload: true
+      out:
+        - id: forward
+          table: logs
+          columns:
+            - name: data
               type: string
     - id: forward
       kind: sink
