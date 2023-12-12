@@ -94,6 +94,10 @@ spec:
               - GET /admin HTTP/1.0
               - GET /wp-admin HTTP/1.0
               - GET /phpmyadmin HTTP/1.0
+              - DELETE /images/KSC-94EC-412-small.gif HTTP/1.0
+              - DELETE /user?id=1 HTTP/1.0
+              - PATCH /admin?id=1873 HTTP/1.0
+              - PUT /user?id=1 HTTP/1.0
           - name: time
             type: random
             min: 0
