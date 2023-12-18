@@ -36,7 +36,7 @@ upload_artifact() {
 directory_choice="$1"
 case "$directory_choice" in
     "cyber")
-        upload_artifact "${here}/../resources/cyber/artifacts/starter-sigma-rules-wasm-compiled-0.0.0-dev-packaged.zip"
+        upload_all_artifacts "${here}/../resources/cyber/artifacts"
         ;;
     "wine")
         upload_all_artifacts "${here}/../resources/wine/artifacts"
