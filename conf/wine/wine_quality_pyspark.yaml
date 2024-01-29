@@ -3,6 +3,11 @@ apiVersion: punchline.punchplatform.io/v2
 kind: SparkPunchline
 metadata:
   name: wine-quality-pyspark
+  annotations:
+    prometheus.io/scrape: 'false'
+    prometheus.io/port: '0'
+    metrics.punchplatform.com/pushGatewayUrl: http://artifacts-server.artifacts-server:4245
+    metrics.punchplatform.com/pushGatewayIntervalSeconds: '10'
 spec:
   containers:
     serviceAccount: admin-user
