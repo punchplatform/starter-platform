@@ -1,4 +1,4 @@
-# Wine Sample platform
+1# Wine Sample platform
 
 The Wine Sample platform illustrates a typical data science workflow, involving the processing of a dataset and making predictions using either the Python engine or the Spark engine.
 
@@ -20,6 +20,18 @@ To create the required S3 bucket and upload the dataset, follow these steps:
 2. In the Buckets interface, create an S3 bucket named "data"
 3. In the Objects Browser interface, select the "data" bucket and upload the dataset located in ```resources/wine/data/winequality-red.csv```.
 
+If you want to use "wine_quality_flink.yaml" you must provide credential to the artifactory registry :
+
+1. ```shell
+    export DOCKER_USERNAME="your-username"
+    export DOCKER_PASSWORD="your-token"
+    ```
+2. ```shell
+    kubectl create secret docker-registry regcred --docker-server=artifactory.thalesdigital.io --docker-username=$DOCKER_USERNAME --docker-password=$DOCKER_PASSWORD
+    ```
+3. ```shell
+    kubectl apply -f service-account.yaml
+    ```
 To upload the artifact containing the machine learning model, execute the following command at the root of the project:
 
 ```sh
