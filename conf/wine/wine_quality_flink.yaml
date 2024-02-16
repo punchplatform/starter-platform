@@ -1,0 +1,193 @@
+---
+apiVersion: punchline.punchplatform.io/v2
+kind: BatchApplication
+metadata:
+  name: app-flink-stream
+spec:
+  containers:
+    serviceAccount: flinkserviceaccount
+    applicationContainer:
+      image: artifactory.thalesdigital.io/kast-project/kast/kast-flow-runtime-java:dev
+      imagePullPolicy: IfNotPresent
+      replicas: 1
+      env:
+        - name: FLOW_DAG_JSON
+          value: "/tmp/resources/topology.yaml"
+      command:
+        - "entrypoint.sh"
+      configMapMounts:
+        - name: topology
+          mountPath: /tmp/resources/
+          content:
+            topology.yaml: |
+              jobId: 00000000000000000000000000000000
+              dag:
+                - id: reads3
+                  type: fs-source
+                  format: csv
+                  topics: s3a://data/winequality-red.csv
+                  meta:
+                    csv.allow-comments: "true"
+                    csv.field-delimiter: ","
+                    csv.ignore-parse-errors: "true"
+                  schema: |
+                    {
+                      "type": "record",
+                      "name": "csv",
+                      "fields": [
+                        {
+                          "name": "fixed_acidity",
+                          "type": "double"
+                        },
+                        {
+                          "name": "volatile_acidity",
+                          "type": "double"
+                        },
+                        {
+                          "name": "citric_acid",
+                          "type": "double"
+                        },
+                        {
+                          "name": "residual_sugar",
+                          "type": "double"
+                        },
+                        {
+                          "name": "chlorides",
+                          "type": "double"
+                        },
+                        {
+                          "name": "free_sulfur_dioxide",
+                          "type": "double"
+                        },
+                        {
+                          "name": "total_sulfur_dioxide",
+                          "type": "double"
+                        },
+                        {
+                          "name": "density",
+                          "type": "double"
+                        },
+                        {
+                          "name": "pH",
+                          "type": "double"
+                        },
+                        {
+                          "name": "sulphates",
+                          "type": "double"
+                        },
+                        {
+                          "name": "alcohol",
+                          "type": "double"
+                        }
+                      ]
+                    }
+                  out:
+                    - filtercsv
+                - id: filtercsv
+                  type: filter
+                  name: myFilter
+                  fn: |
+                    import io.github.kaststream.api.Filter;
+  
+                    public class myFilter implements io.github.kaststream.api.Filter {
+                      public boolean filter(Row row) throws Exception {
+                        if (row.getField(0) != null)
+                          return ((Double) row.getField(0) > 6);
+                        return false;
+                      }
+                      
+                      public TypeInformation<Row> getProducedType(TypeInformation<Row> typeInfo) {
+                        return typeInfo;
+                      }
+                    }
+                  out:
+                    - s3sink
+                - id: s3sink
+                  topics: s3a://data/winequality-flink-result/
+                  format: csv
+                  type: fs-sink
+        - name: flink-runtime-resources
+          mountPath: /opt/flink/hadoop/conf/
+          content:
+            flink-conf.yaml: |
+              execution.checkpointing.interval: 3s
+              execution.checkpointing.externalized-checkpoint-retention: RETAIN_ON_CANCELLATION
+              execution.checkpointing.max-concurrent-checkpoints: 1
+              execution.checkpointing.mode: AT_LEAST_ONCE
+              execution.runtime-mode: BATCH
+              state.backend: hashmap
+            log4j2.properties: |
+              rootLogger.level = WARN
+              rootLogger.appenderRef.console.ref = ConsoleAppender
+
+              logger.kast.name = com.thalesgroup.kast
+              logger.kast.level = INFO
+              logger.kast.additivity = false
+              logger.kast.appenderRef.console.ref = ConsoleAppender
+
+              logger.flink.name = org.apache.flink
+              logger.flink.level = WARN
+              logger.flink.additivity = false
+              logger.flink.appenderRef.console.ref = ConsoleAppender
+
+              # Remove this when https://issues.apache.org/jira/browse/FLINK-27944 is closed
+              logger.flink.name = org.apache.flink.metrics.MetricGroup
+              logger.flink.level = ERROR
+              logger.flink.additivity = false
+              logger.flink.appenderRef.console.ref = ConsoleAppender
+
+              logger.kafka.name = org.apache.kafka
+              logger.kafka.level = ERROR
+              logger.kafka.additivity = false
+              logger.kafka.appenderRef.console.ref = ConsoleAppender
+
+              logger.amazonaws.name = com.amazonaws.AmazonWebServiceClient
+              logger.amazonaws.level = WARN
+              logger.amazonaws.additivity = false
+              logger.amazonaws.appenderRef.console.ref = ConsoleAppender
+
+              appender.console.name = ConsoleAppender
+              appender.console.type = CONSOLE
+              appender.console.layout.type = PatternLayout
+              appender.console.layout.pattern = %d{HH:mm:ss,SSS} %-5p %-60c %x - %m%n
+            core-site.xml: |
+              <?xml version="1.0" encoding="UTF-8"?>
+              <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+              <configuration>
+              <property>
+              <name>fs.s3a.endpoint</name>
+              <value>http://minio.object-store:9000</value>
+              </property>
+              <property>
+              <name>fs.s3a.access.key</name>
+              <value>minioadmin</value>
+              </property>
+              <property>
+              <name>fs.s3a.secret.key</name>
+              <value>minioadmin</value>
+              </property>
+              <property>
+              <name>fs.s3a.path.style.access</name>
+              <value>true</value>
+              </property>
+              <property>
+              <name>fs.s3a.connection.ssl.enabled</name>
+              <value>false</value>
+              </property>
+              <property>
+              <name>fs.s3a.impl</name>
+              <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+              </property>
+              <property>
+              <name>fs.s3a.connection.establish.timeout</name>
+              <value>5000</value>
+              </property>
+              <property>
+              <name>fs.s3a.connection.timeout</name>
+              <value>10000</value>
+              </property>
+              <property>
+              <name>fs.s3a.attempts.maximum</name>
+              <value>5</value>
+              </property>
+              </configuration>
