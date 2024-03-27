@@ -13,14 +13,17 @@ Here are the few files to use:
 * bin/uploadConf.sh : upload the configuration you want to punch configuration server.
 * bin/uploadDevice.sh: upload the devices information to punch central platform. This is not necessary, the device will automatically provision itself once started.
 
+
 ## Kooker Usage
 
-To upload the configuration to Kooker simply type in: 
+Platform prerequisites setup steps are fully decribed in conf/cyber/README.md
+
+If you already have a provisionned kooker with punch services deployed, then to upload the configuration to Kooker simply type in: 
 
 ```sh
 ./bin/uploadConf.sh cyber
 ```
-Use onf of 'cyber', 'flights', 'sample' or 'all' to load wnat you want. 
+Use conf of 'cyber', 'flights', 'sample' or 'all' to load wnat you want. 
 
 You can then navigate to your punch board and start the various applications. 
 
