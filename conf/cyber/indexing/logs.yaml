@@ -45,7 +45,8 @@ spec:
       kind: sink
       type: elasticsearch
       settings:
-        show: true
+        #show: true
+        # The 'show' setting is a debug feature that bypasses actual write to Opensearch and instead prints to stdout
         http_hosts:
           - host: elasticsearch-master.doc-store
             port: 9200
