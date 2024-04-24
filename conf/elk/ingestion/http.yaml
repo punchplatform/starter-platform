@@ -1,0 +1,83 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elk-ingestion-http
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: elk-ingestion-http
+  template:
+    metadata:
+      labels:
+        app: elk-ingestion-http
+    spec:
+      containers:
+        - image: ghcr.io/punchplatform/punchline-java:8.1-dev
+          name: java-engine
+          volumeMounts:
+            - name: punchline
+              mountPath: "/data/punchline.yaml"
+              subPath: punchline.yaml
+          command: ["/bin/bash" , "start.sh", "/data/punchline.yaml"]
+      volumes:
+        - name: punchline
+          configMap:
+            name: elk-ingestion-http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elk-ingestion-http
+  namespace: default
+data:
+  punchline.yaml: |
+    metadata:
+      name: elk-ingestion-http
+      annotations:
+        artifacts.punchplatform.com/url: "http://artifacts-server.punch:8080/v1/artifacts"
+        artifacts.punchplatform.com/refreshIntervalSeconds: '5'
+    spec:
+      dag:
+        # The HTTP source act as your receiver HTTP server, receiving payload from
+        # external devices or applications.
+        - id: input
+          kind: source
+          type: http_source
+          settings:
+            debug: false
+            url: "http://0.0.0.0:8090"
+          out:
+            - id: sink
+              # This table and column is explicit. It means that devices or external data providers
+              # must send JSON data that have either an array of JSON data with the 'data' field
+              # or a complete body that includes the JSON schema with table 'logs' and colums 'data'.
+              #
+              # The extra _ppf_xxx columns will be added automatically if missing from the received 
+              # body. 
+              table: logs
+              columns:
+                - name: data
+                  type: string
+                - name: _ppf_id
+                  type: string
+                - name: _ppf_local_port
+                  type: int
+                - name: _ppf_local_host
+                  type: string
+        # The records are inserted into Kafka. The table name (here logs) is not
+        # part of the encoding data. Only the columns name and values.
+        # In the following configuration rows are encoded using a binary key value
+        # format for efficiency. Punch also supports JSON or AVRO encoding.
+        - id: sink
+          kind: sink
+          type: kafka
+          settings:
+            show: false
+            show_max_length: 80
+            format: json
+            bootstrap.servers: kooker-kafka-kafka-brokers.processing:9092
+            topic: logs-input
+    
+ 

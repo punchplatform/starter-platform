@@ -40,6 +40,9 @@ upload_yaml() {
 
 directory_choice="$1"
 case "$directory_choice" in
+    "elk")
+        upload_all_yaml "${here}/../conf/elk"
+        ;;
     "radar")
         upload_all_yaml "${here}/../conf/radar"
         ;;
